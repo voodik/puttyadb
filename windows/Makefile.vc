@@ -116,7 +116,7 @@ pageant.exe: conf.obj misc.obj pageant.res sshaes.obj sshbn.obj sshdes.obj \
 		winutils.obj pageant.rsp
 	link $(LFLAGS) $(XLFLAGS) -out:pageant.exe -map:pageant.map @pageant.rsp
 
-plink.exe: be_all_s.obj callback.obj cmdline.obj conf.obj cproxy.obj \
+plink.exe: adb.obj be_all_s.obj callback.obj cmdline.obj conf.obj cproxy.obj \
 		errsock.obj ldisc.obj logging.obj misc.obj noterm.obj \
 		pgssapi.obj pinger.obj plink.res portfwd.obj proxy.obj \
 		raw.obj rlogin.obj settings.obj ssh.obj sshaes.obj \
@@ -162,7 +162,7 @@ psftp.exe: be_ssh.obj callback.obj cmdline.obj conf.obj cproxy.obj \
 		wintime.obj x11fwd.obj psftp.rsp
 	link $(LFLAGS) $(XLFLAGS) -out:psftp.exe -map:psftp.map @psftp.rsp
 
-putty.exe: be_all_s.obj callback.obj cmdline.obj conf.obj config.obj \
+putty.exe: adb.obj be_all_s.obj callback.obj cmdline.obj conf.obj config.obj \
 		cproxy.obj dialog.obj errsock.obj ldisc.obj ldiscucs.obj \
 		logging.obj minibidi.obj misc.obj pgssapi.obj pinger.obj \
 		portfwd.obj proxy.obj putty.res raw.obj rlogin.obj \
@@ -189,7 +189,7 @@ puttygen.exe: conf.obj import.obj misc.obj notiming.obj puttygen.res \
 		wintime.obj winutils.obj puttygen.rsp
 	link $(LFLAGS) $(XLFLAGS) -out:puttygen.exe -map:puttygen.map @puttygen.rsp
 
-puttytel.exe: be_nos_s.obj callback.obj cmdline.obj conf.obj config.obj \
+puttytel.exe: adb.obj be_nos_s.obj callback.obj cmdline.obj conf.obj config.obj \
 		dialog.obj errsock.obj ldisc.obj ldiscucs.obj logging.obj \
 		minibidi.obj misc.obj nocproxy.obj nogss.obj pinger.obj \
 		proxy.obj puttytel.res raw.obj rlogin.obj sercfg.obj \
@@ -214,7 +214,7 @@ pageant.rsp: $(MAKEFILE)
 
 plink.rsp: $(MAKEFILE)
 	echo /nologo /subsystem:console > plink.rsp
-	echo advapi32.lib be_all_s.obj callback.obj >> plink.rsp
+	echo advapi32.lib adb.obj be_all_s.obj callback.obj >> plink.rsp
 	echo cmdline.obj comctl32.lib comdlg32.lib conf.obj >> plink.rsp
 	echo cproxy.obj errsock.obj gdi32.lib imm32.lib >> plink.rsp
 	echo ldisc.obj logging.obj misc.obj noterm.obj >> plink.rsp
@@ -278,7 +278,7 @@ psftp.rsp: $(MAKEFILE)
 
 putty.rsp: $(MAKEFILE)
 	echo /nologo /subsystem:windows > putty.rsp
-	echo advapi32.lib be_all_s.obj callback.obj >> putty.rsp
+	echo advapi32.lib adb.obj be_all_s.obj callback.obj >> putty.rsp
 	echo cmdline.obj comctl32.lib comdlg32.lib conf.obj >> putty.rsp
 	echo config.obj cproxy.obj dialog.obj errsock.obj >> putty.rsp
 	echo gdi32.lib imm32.lib ldisc.obj ldiscucs.obj >> putty.rsp
@@ -318,7 +318,7 @@ puttygen.rsp: $(MAKEFILE)
 
 puttytel.rsp: $(MAKEFILE)
 	echo /nologo /subsystem:windows > puttytel.rsp
-	echo advapi32.lib be_nos_s.obj callback.obj >> puttytel.rsp
+	echo adb.obj advapi32.lib be_nos_s.obj callback.obj >> puttytel.rsp
 	echo cmdline.obj comctl32.lib comdlg32.lib conf.obj >> puttytel.rsp
 	echo config.obj dialog.obj errsock.obj gdi32.lib >> puttytel.rsp
 	echo imm32.lib ldisc.obj ldiscucs.obj logging.obj >> puttytel.rsp
@@ -333,6 +333,12 @@ puttytel.rsp: $(MAKEFILE)
 	echo winnet.obj winprint.obj winproxy.obj winser.obj >> puttytel.rsp
 	echo winspool.lib winstore.obj wintime.obj winucs.obj >> puttytel.rsp
 	echo winutils.obj >> puttytel.rsp
+
+adb.obj: ..\adb.c ..\putty.h ..\puttyps.h ..\network.h ..\misc.h \
+		..\windows\winstuff.h ..\macosx\osx.h ..\unix\unix.h \
+		..\puttymem.h ..\tree234.h ..\windows\winhelp.h \
+		..\charset\charset.h
+	cl $(COMPAT) $(CFLAGS) $(XFLAGS) /c ..\adb.c
 
 be_all_s.obj: ..\be_all_s.c ..\putty.h ..\puttyps.h ..\network.h ..\misc.h \
 		..\windows\winstuff.h ..\macosx\osx.h ..\unix\unix.h \
