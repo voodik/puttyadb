@@ -161,19 +161,23 @@ If you use the <code>-batch</code> option, PSFTP will never give an interactive 
 <p>
 This may help PSFTP's behaviour when it is used in automated scripts: using <code>-batch</code>, if something goes wrong at connection time, the batch job will fail rather than hang.
 </p>
+<h4><a name="psftp-option-sanitise"></a><a name="S6.1.4.1"></a>6.1.4.1 <a name="i11"></a><a name="i12"></a><code>-no-sanitise-stderr</code>: control error message sanitisation</h4>
+<p>
+The <code>-no-sanitise-stderr</code> option will cause PSFTP to pass through the server's standard-error stream literally, without stripping control characters from it first. This might be useful if the server were sending coloured error messages, but it also gives the server the ability to have unexpected effects on your terminal display. For more discussion, see <a href="Chapter7.html#plink-option-sanitise">section 7.2.3.5</a>.
+</p>
 <h2><a name="psftp-commands"></a><a name="S6.2"></a>6.2 Running PSFTP</h2>
 <p>
 Once you have started your PSFTP session, you will see a <code>psftp&gt;</code> prompt. You can now type commands to perform file-transfer functions. This section lists all the available commands.
 </p>
 <p>
-Any line starting with a <code>#</code> will be treated as a <a name="i11"></a>comment and ignored.
+Any line starting with a <code>#</code> will be treated as a <a name="i13"></a>comment and ignored.
 </p>
-<h3><a name="psftp-quoting"></a><a name="S6.2.1"></a>6.2.1 <a name="i12"></a>General quoting rules for PSFTP commands</h3>
+<h3><a name="psftp-quoting"></a><a name="S6.2.1"></a>6.2.1 <a name="i14"></a>General quoting rules for PSFTP commands</h3>
 <p>
 Most PSFTP commands are considered by the PSFTP command interpreter as a sequence of words, separated by spaces. For example, the command <code>ren oldfilename newfilename</code> splits up into three words: <code>ren</code> (the command name), <code>oldfilename</code> (the name of the file to be renamed), and <code>newfilename</code> (the new name to give the file).
 </p>
 <p>
-Sometimes you will need to specify <a name="i13"></a>file names that <em>contain</em> spaces. In order to do this, you can surround the file name with double quotes. This works equally well for local file names and remote file names:
+Sometimes you will need to specify <a name="i15"></a>file names that <em>contain</em> spaces. In order to do this, you can surround the file name with double quotes. This works equally well for local file names and remote file names:
 </p>
 <pre><code>psftp&gt; get "spacey file name.txt" "save it under this name.txt"
 </code></pre>
@@ -193,13 +197,13 @@ will take a file whose current name is <code>"this"</code> (with a double quote 
 </p>
 <h3><a name="psftp-wildcards"></a><a name="S6.2.2"></a>6.2.2 Wildcards in PSFTP</h3>
 <p>
-Several commands in PSFTP support &#8216;<a name="i14"></a>wildcards&#8217; to select multiple files.
+Several commands in PSFTP support &#8216;<a name="i16"></a>wildcards&#8217; to select multiple files.
 </p>
 <p>
 For <em>local</em> file specifications (such as the first argument to <code>put</code>), wildcard rules for the local operating system are used. For instance, PSFTP running on Windows might require the use of <code>*.*</code> where PSFTP on Unix would need <code>*</code>.
 </p>
 <p>
-For <em>remote</em> file specifications (such as the first argument to <code>get</code>), PSFTP uses a standard wildcard syntax (similar to <a name="i15"></a>POSIX wildcards):
+For <em>remote</em> file specifications (such as the first argument to <code>get</code>), PSFTP uses a standard wildcard syntax (similar to <a name="i17"></a>POSIX wildcards):
 </p>
 <ul><li>
 <code>*</code> matches any sequence of characters (including a zero-length sequence).
@@ -255,7 +259,7 @@ If you type <code>help</code>, PSFTP will give a short list of the available com
 <p>
 If you type <code>help</code> with a command name - for example, <code>help get</code> - then PSFTP will give a short piece of help on that particular command.
 </p>
-<h3><a name="psftp-cmd-cd"></a><a name="S6.2.7"></a>6.2.7 The <code>cd</code> and <code>pwd</code> commands: changing the remote <a name="i16"></a>working directory</h3>
+<h3><a name="psftp-cmd-cd"></a><a name="S6.2.7"></a>6.2.7 The <code>cd</code> and <code>pwd</code> commands: changing the remote <a name="i18"></a>working directory</h3>
 <p>
 PSFTP maintains a notion of your &#8216;working directory&#8217; on the server. This is the default directory that other commands will operate on. For example, if you type <code>get filename.dat</code> then PSFTP will look for <code>filename.dat</code> in your remote working directory on the server.
 </p>
@@ -265,7 +269,7 @@ To change your remote working directory, use the <code>cd</code> command. If you
 <p>
 To display your current remote working directory, type <code>pwd</code>.
 </p>
-<h3><a name="psftp-cmd-lcd"></a><a name="S6.2.8"></a>6.2.8 The <code>lcd</code> and <code>lpwd</code> commands: changing the local <a name="i17"></a>working directory</h3>
+<h3><a name="psftp-cmd-lcd"></a><a name="S6.2.8"></a>6.2.8 The <code>lcd</code> and <code>lpwd</code> commands: changing the local <a name="i19"></a>working directory</h3>
 <p>
 As well as having a working directory on the remote server, PSFTP also has a working directory on your local machine (just like any other Windows process). This is the default local directory that other commands will operate on. For example, if you type <code>get filename.dat</code> then PSFTP will save the resulting file as <code>filename.dat</code> in your local working directory.
 </p>
@@ -274,7 +278,7 @@ To change your local working directory, use the <code>lcd</code> command. To dis
 </p>
 <h3><a name="psftp-cmd-get"></a><a name="S6.2.9"></a>6.2.9 The <code>get</code> command: fetch a file from the server</h3>
 <p>
-To <a name="i18"></a>download a file from the server and store it on your local PC, you use the <code>get</code> command.
+To <a name="i20"></a>download a file from the server and store it on your local PC, you use the <code>get</code> command.
 </p>
 <p>
 In its simplest form, you just use this with a file name:
@@ -290,7 +294,7 @@ If you want to store the file locally under a different name, specify the local 
 This will fetch the file on the server called <code>myfile.dat</code>, but will save it to your local machine under the name <code>newname.dat</code>.
 </p>
 <p>
-To fetch an entire directory <a name="i19"></a>recursively, you can use the <code>-r</code> option:
+To fetch an entire directory <a name="i21"></a>recursively, you can use the <code>-r</code> option:
 </p>
 <pre><code>get -r mydir
 get -r mydir newname
@@ -300,7 +304,7 @@ get -r mydir newname
 </p>
 <h3><a name="psftp-cmd-put"></a><a name="S6.2.10"></a>6.2.10 The <code>put</code> command: send a file to the server</h3>
 <p>
-To <a name="i20"></a>upload a file to the server from your local PC, you use the <code>put</code> command.
+To <a name="i22"></a>upload a file to the server from your local PC, you use the <code>put</code> command.
 </p>
 <p>
 In its simplest form, you just use this with a file name:
@@ -316,7 +320,7 @@ If you want to store the file remotely under a different name, specify the remot
 This will send the local file called <code>myfile.dat</code>, but will store it on the server under the name <code>newname.dat</code>.
 </p>
 <p>
-To send an entire directory <a name="i21"></a>recursively, you can use the <code>-r</code> option:
+To send an entire directory <a name="i23"></a>recursively, you can use the <code>-r</code> option:
 </p>
 <pre><code>put -r mydir
 put -r mydir newname
@@ -336,7 +340,7 @@ by using a wildcard (&#8216;<code>mget *.txt</code>&#8217;).
 </li>
 </ul>
 <p>
-Every argument to <code>mget</code> is treated as the name of a file to fetch (unlike <code>get</code>, which will interpret at most one argument like that, and a second argument will be treated as an alternative name under which to store the retrieved file), or a <a name="i22"></a>wildcard expression matching more than one file.
+Every argument to <code>mget</code> is treated as the name of a file to fetch (unlike <code>get</code>, which will interpret at most one argument like that, and a second argument will be treated as an alternative name under which to store the retrieved file), or a <a name="i24"></a>wildcard expression matching more than one file.
 </p>
 <p>
 The <code>-r</code> and <code>--</code> options from <code>get</code> are also available with <code>mget</code>.
@@ -344,7 +348,7 @@ The <code>-r</code> and <code>--</code> options from <code>get</code> are also a
 <p>
 <code>mput</code> is similar to <code>put</code>, with the same differences.
 </p>
-<h3><a name="psftp-cmd-regetput"></a><a name="S6.2.12"></a>6.2.12 The <code>reget</code> and <code>reput</code> commands: <a name="i23"></a>resuming file transfers</h3>
+<h3><a name="psftp-cmd-regetput"></a><a name="S6.2.12"></a>6.2.12 The <code>reget</code> and <code>reput</code> commands: <a name="i25"></a>resuming file transfers</h3>
 <p>
 If a file transfer fails half way through, and you end up with half the file stored on your disk, you can resume the file transfer using the <code>reget</code> and <code>reput</code> commands. These work exactly like the <code>get</code> and <code>put</code> commands, but they check for the presence of the half-written destination file and start transferring from where the last attempt left off.
 </p>
@@ -358,7 +362,7 @@ reget -r mydir
 <p>
 These commands are intended mainly for resuming interrupted transfers. They assume that the remote file or directory structure has not changed in any way; if there have been changes, you may end up with corrupted files. In particular, the <code>-r</code> option will not pick up changes to files or directories already transferred in full.
 </p>
-<h3><a name="psftp-cmd-dir"></a><a name="S6.2.13"></a>6.2.13 The <code>dir</code> command: <a name="i24"></a>list remote files</h3>
+<h3><a name="psftp-cmd-dir"></a><a name="S6.2.13"></a>6.2.13 The <code>dir</code> command: <a name="i26"></a>list remote files</h3>
 <p>
 To list the files in your remote working directory, just type <code>dir</code>.
 </p>
@@ -379,7 +383,7 @@ The <code>ls</code> command works exactly the same way as <code>dir</code>.
 </p>
 <h3><a name="psftp-cmd-chmod"></a><a name="S6.2.14"></a>6.2.14 The <code>chmod</code> command: change permissions on remote files</h3>
 <p>
-<a name="i25"></a>PSFTP allows you to modify the file permissions on files and directories on the server. You do this using the <code>chmod</code> command, which works very much like the Unix <code>chmod</code> command.
+<a name="i27"></a>PSFTP allows you to modify the file permissions on files and directories on the server. You do this using the <code>chmod</code> command, which works very much like the Unix <code>chmod</code> command.
 </p>
 <p>
 The basic syntax is <code>chmod modes file</code>, where <code>modes</code> represents a modification to the file permissions, and <code>file</code> is the filename to modify. You can specify multiple files or wildcards. For example:
@@ -398,7 +402,7 @@ The people affected by the modification. This can be <code>u</code> (the owning 
 A <code>+</code> or <code>-</code> sign, indicating whether permissions are to be added or removed.
 </li>
 <li>
-The actual permissions being added or removed. These can be <a name="i26"></a><code>r</code> (permission to read the file), <a name="i27"></a><code>w</code> (permission to write to the file), and <a name="i28"></a><code>x</code> (permission to execute the file, or in the case of a directory, permission to access files within the directory).
+The actual permissions being added or removed. These can be <a name="i28"></a><code>r</code> (permission to read the file), <a name="i29"></a><code>w</code> (permission to write to the file), and <a name="i30"></a><code>x</code> (permission to execute the file, or in the case of a directory, permission to access files within the directory).
 </li>
 </ul>
 <p>
@@ -412,21 +416,21 @@ The second example: <code>a+r</code> adds read permission for everybody to all f
 </li>
 </ul>
 <p>
-In addition to all this, there are a few extra special cases for <a name="i29"></a>Unix systems. On non-Unix systems these are unlikely to be useful:
+In addition to all this, there are a few extra special cases for <a name="i31"></a>Unix systems. On non-Unix systems these are unlikely to be useful:
 </p>
 <ul><li>
-You can specify <code>u+s</code> and <code>u-s</code> to add or remove the Unix <a name="i30"></a>set-user-ID bit. This is typically only useful for special purposes; refer to your Unix documentation if you're not sure about it.
+You can specify <code>u+s</code> and <code>u-s</code> to add or remove the Unix <a name="i32"></a>set-user-ID bit. This is typically only useful for special purposes; refer to your Unix documentation if you're not sure about it.
 </li>
 <li>
-You can specify <code>g+s</code> and <code>g-s</code> to add or remove the Unix <a name="i31"></a>set-group-ID bit. On a file, this works similarly to the set-user-ID bit (see your Unix documentation again); on a directory it ensures that files created in the directory are accessible by members of the group that owns the directory.
+You can specify <code>g+s</code> and <code>g-s</code> to add or remove the Unix <a name="i33"></a>set-group-ID bit. On a file, this works similarly to the set-user-ID bit (see your Unix documentation again); on a directory it ensures that files created in the directory are accessible by members of the group that owns the directory.
 </li>
 <li>
-You can specify <code>+t</code> and <code>-t</code> to add or remove the Unix &#8216;<a name="i32"></a>sticky bit&#8217;. When applied to a directory, this means that the owner of a file in that directory can delete the file (whereas normally only the owner of the <em>directory</em> would be allowed to).
+You can specify <code>+t</code> and <code>-t</code> to add or remove the Unix &#8216;<a name="i34"></a>sticky bit&#8217;. When applied to a directory, this means that the owner of a file in that directory can delete the file (whereas normally only the owner of the <em>directory</em> would be allowed to).
 </li>
 </ul>
 <h3><a name="psftp-cmd-del"></a><a name="S6.2.15"></a>6.2.15 The <code>del</code> command: delete remote files</h3>
 <p>
-To <a name="i33"></a>delete a file on the server, type <code>del</code> and then the filename or filenames:
+To <a name="i35"></a>delete a file on the server, type <code>del</code> and then the filename or filenames:
 </p>
 <pre><code>del oldfile.dat
 del file1.txt file2.txt
@@ -443,7 +447,7 @@ The <code>rm</code> command works exactly the same way as <code>del</code>.
 </p>
 <h3><a name="psftp-cmd-mkdir"></a><a name="S6.2.16"></a>6.2.16 The <code>mkdir</code> command: create remote directories</h3>
 <p>
-To <a name="i34"></a>create a directory on the server, type <code>mkdir</code> and then the directory name:
+To <a name="i36"></a>create a directory on the server, type <code>mkdir</code> and then the directory name:
 </p>
 <pre><code>mkdir newstuff
 </code></pre>
@@ -454,7 +458,7 @@ You can specify multiple directories to create at once:
 </code></pre>
 <h3><a name="psftp-cmd-rmdir"></a><a name="S6.2.17"></a>6.2.17 The <code>rmdir</code> command: remove remote directories</h3>
 <p>
-To <a name="i35"></a>remove a directory on the server, type <code>rmdir</code> and then the directory name or names:
+To <a name="i37"></a>remove a directory on the server, type <code>rmdir</code> and then the directory name or names:
 </p>
 <pre><code>rmdir oldstuff
 rmdir *.old ancient
@@ -465,7 +469,7 @@ Directories will be deleted without further prompting, even if multiple director
 <p>
 Most SFTP servers will probably refuse to remove a directory if the directory has anything in it, so you will need to delete the contents first.
 </p>
-<h3><a name="psftp-cmd-mv"></a><a name="S6.2.18"></a>6.2.18 The <code>mv</code> command: move and <a name="i36"></a>rename remote files</h3>
+<h3><a name="psftp-cmd-mv"></a><a name="S6.2.18"></a>6.2.18 The <code>mv</code> command: move and <a name="i38"></a>rename remote files</h3>
 <p>
 To rename a single file on the server, type <code>mv</code>, then the current file name, and then the new file name:
 </p>
@@ -486,7 +490,7 @@ mv *.c *.h ..
 <p>
 The <code>rename</code> and <code>ren</code> commands work exactly the same way as <code>mv</code>.
 </p>
-<h3><a name="psftp-cmd-pling"></a><a name="S6.2.19"></a>6.2.19 The <code>!</code> command: run a <a name="i37"></a>local Windows command</h3>
+<h3><a name="psftp-cmd-pling"></a><a name="S6.2.19"></a>6.2.19 The <code>!</code> command: run a <a name="i39"></a>local Windows command</h3>
 <p>
 You can run local Windows commands using the <code>!</code> command. This is the only PSFTP command that is not subject to the command quoting rules given in <a href="#psftp-quoting">section 6.2.1</a>. If any command line begins with the <code>!</code> character, then the rest of the line will be passed straight to Windows without further translation.
 </p>
@@ -499,7 +503,7 @@ psftp&gt; get myfile.dat
 <p>
 using the Windows <code>ren</code> command to rename files on your local PC.
 </p>
-<h2><a name="psftp-pubkey"></a><a name="S6.3"></a>6.3 Using <a name="i38"></a>public key authentication with PSFTP</h2>
+<h2><a name="psftp-pubkey"></a><a name="S6.3"></a>6.3 Using <a name="i40"></a>public key authentication with PSFTP</h2>
 <p>
 Like PuTTY, PSFTP can authenticate using a public key instead of a password. There are three ways you can do this.
 </p>
@@ -507,7 +511,7 @@ Like PuTTY, PSFTP can authenticate using a public key instead of a password. The
 Firstly, PSFTP can use PuTTY saved sessions in place of hostnames. So you might do this:
 </p>
 <ul><li>
-Run PuTTY, and create a PuTTY saved session (see <a href="Chapter4.html#config-saving">section 4.1.2</a>) which specifies your private key file (see <a href="Chapter4.html#config-ssh-privkey">section 4.21.8</a>). You will probably also want to specify a username to log in as (see <a href="Chapter4.html#config-username">section 4.14.1</a>).
+Run PuTTY, and create a PuTTY saved session (see <a href="Chapter4.html#config-saving">section 4.1.2</a>) which specifies your private key file (see <a href="Chapter4.html#config-ssh-privkey">section 4.23.8</a>). You will probably also want to specify a username to log in as (see <a href="Chapter4.html#config-username">section 4.15.1</a>).
 </li>
 <li>
 In PSFTP, you can now use the name of the session instead of a hostname: type <code>psftp sessionname</code>, where <code>sessionname</code> is replaced by the name of your saved session.
@@ -530,6 +534,6 @@ Specify a user and host name to PSFTP as normal. PSFTP will automatically detect
 For more general information on public-key authentication, see <a href="Chapter8.html#pubkey">chapter 8</a>.
 </p>
 
-<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
-[PuTTY release 0.64]</address></body>
+<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
+[PuTTY release 0.73]</address></body>
 </html>

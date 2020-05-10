@@ -41,7 +41,7 @@ This is sent by a client to announce that it will not have more than one channel
 <dd>
 PuTTY sends this request along with some <code>SSH_MSG_CHANNEL_WINDOW_ADJUST</code> messages as part of its window-size tuning. It can be sent on any type of channel. There is no message-specific data. Servers MUST treat it as an unrecognised request and respond with <code>SSH_MSG_CHANNEL_FAILURE</code>.
 <p>
-(Some SSH servers get confused by this message, so there is a bug-compatibility mode for disabling it. See <a href="Chapter4.html#config-ssh-bug-winadj">section 4.26.5</a>.) 
+(Some SSH servers get confused by this message, so there is a bug-compatibility mode for disabling it. See <a href="Chapter4.html#config-ssh-bug-winadj">section 4.28.3</a>.) 
 </p>
 
 </dd>
@@ -96,6 +96,6 @@ These were used in drafts of what eventually became RFC&nbsp;4345. They have bee
 </dd>
 </dl>
 
-<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
-[PuTTY release 0.64]</address></body>
+<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
+[PuTTY release 0.73]</address></body>
 </html>

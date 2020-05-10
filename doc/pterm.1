@@ -28,7 +28,7 @@ Specify the X display on which to open \fBpterm\fP. (Note this option has a doub
 .IP "\fB\-name\fP \fIname\fP"
 Specify the name under which \fBpterm\fP looks up X resources. Normally it will look them up as (for example) \fBpterm.Font\fP. If you specify `\fB\-name xyz\fP', it will look them up as \fBxyz.Font\fP instead. This allows you to set up several different sets of defaults and choose between them.
 .IP "\fB\-fn\fP \fIfont-name\fP"
-Specify the font to use for normal text displayed in the terminal.
+Specify the font to use for normal text displayed in the terminal. For example, \fB\-fn\ fixed\fP, \fB\-fn\ "Monospace\ 12"\fP.
 .IP "\fB\-fb\fP \fIfont-name\fP"
 Specify the font to use for bold text displayed in the terminal. If the \fBBoldAsColour\fP resource is set to 1 (the default), bold text will be displayed in different colours instead of a different font, so this option will be ignored. If \fBBoldAsColour\fP is set to 0 or 2 and you do not specify a bold font, \fBpterm\fP will overprint the normal font to make it look bolder.
 .IP "\fB\-fw\fP \fIfont-name\fP"
@@ -65,7 +65,7 @@ Tells \fBpterm\fP to execute your shell as a login shell: this is the opposite o
 Tells \fBpterm\fP not to display a scroll bar.
 .IP "\fB\-sb\fP"
 Tells \fBpterm\fP to display a scroll bar: this is the opposite of \fB\-sb\-\fP. This is the default option: you will probably only need to specify it explicitly if you have changed the default using the \fBScrollBar\fP resource.
-.IP "\fB\-log\fP \fIfilename\fP"
+.IP "\fB\-log\fP \fIlogfile\fP, \fB\-sessionlog\fP \fIlogfile\fP"
 This option makes \fBpterm\fP log all the terminal output to a file as well as displaying it in the terminal.
 .IP "\fB\-cs\fP \fIcharset\fP"
 This option specifies the character set in which \fBpterm\fP should assume the session is operating. This character set will be used to interpret all the data received from the session, and all input you type or paste into \fBpterm\fP will be converted into this character set before being sent to the session.

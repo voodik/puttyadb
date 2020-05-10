@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /I "..\..\..\macosx/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /I "..\..\..\macosx/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
+# ADD BASE CPP /nologo /W3 /GX /O2 /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 advapi32.lib comctl32.lib comdlg32.lib gdi32.lib imm32.lib ole32.lib shell32.lib user32.lib winmm.lib winspool.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 advapi32.lib comdlg32.lib gdi32.lib imm32.lib ole32.lib shell32.lib user32.lib /nologo /subsystem:console /machine:I386
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "plink - Win32 Debug"
@@ -69,8 +69,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /I "..\..\..\macosx/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /I "..\..\..\macosx/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "..\..\..\./" /I "..\..\..\charset/" /I "..\..\..\windows/" /I "..\..\..\unix/" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 advapi32.lib comctl32.lib comdlg32.lib gdi32.lib imm32.lib ole32.lib shell32.lib user32.lib winmm.lib winspool.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 advapi32.lib comdlg32.lib gdi32.lib imm32.lib ole32.lib shell32.lib user32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -94,7 +94,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\..\..\agentf.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\aqsync.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\be_all_s.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\be_misc.c
 # End Source File
 # Begin Source File
 
@@ -114,6 +126,10 @@ SOURCE=..\..\..\cproxy.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\ecc.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\errsock.c
 # End Source File
 # Begin Source File
@@ -126,7 +142,27 @@ SOURCE=..\..\..\logging.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\mainchan.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\marshal.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\memory.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\misc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\miscucs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\mpint.c
 # End Source File
 # Begin Source File
 
@@ -135,6 +171,10 @@ SOURCE=..\..\..\noshare.c
 # Begin Source File
 
 SOURCE=..\..\..\noterm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\nullplug.c
 # End Source File
 # Begin Source File
 
@@ -162,6 +202,10 @@ SOURCE=..\..\..\rlogin.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sessprep.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\settings.c
 # End Source File
 # Begin Source File
@@ -179,6 +223,62 @@ SOURCE=..\..\..\ssh.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\ssh1bpp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh1censor.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh1connection-client.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh1connection.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh1login.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2bpp-bare.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2bpp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2censor.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2connection-client.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2connection.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2kex-client.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2transhk.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2transport.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2userauth.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshaes.c
 # End Source File
 # Begin Source File
@@ -187,11 +287,19 @@ SOURCE=..\..\..\ssharcf.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sshauxcrypt.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshblowf.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\sshbn.c
+SOURCE=..\..\..\sshccp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshcommon.c
 # End Source File
 # Begin Source File
 
@@ -215,11 +323,27 @@ SOURCE=..\..\..\sshdss.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sshecc.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshgssc.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sshhmac.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshmac.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshmd5.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshprng.c
 # End Source File
 # Begin Source File
 
@@ -251,7 +375,15 @@ SOURCE=..\..\..\sshshare.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sshverstring.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshzlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\stripctrl.c
 # End Source File
 # Begin Source File
 
@@ -267,11 +399,23 @@ SOURCE=..\..\..\tree234.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\utils.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\version.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\wcwidth.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\wildcard.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\windows\wincapi.c
 # End Source File
 # Begin Source File
 
@@ -299,7 +443,15 @@ SOURCE=..\..\..\windows\winmisc.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\windows\winmiscs.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\windows\winnet.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\windows\winnohlp.c
 # End Source File
 # Begin Source File
 
@@ -351,6 +503,10 @@ SOURCE=..\..\..\windows\wintime.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\windows\winucs.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\windows\winx11.c
 # End Source File
 # Begin Source File
@@ -367,7 +523,15 @@ SOURCE=..\..\..\charset\charset.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\int64.h
+SOURCE=..\..\..\defs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ecc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\empty.h
 # End Source File
 # Begin Source File
 
@@ -375,7 +539,11 @@ SOURCE=..\..\..\ldisc.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\macosx\osx.h
+SOURCE=..\..\..\licence.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\marshal.h
 # End Source File
 # Begin Source File
 
@@ -383,7 +551,19 @@ SOURCE=..\..\..\misc.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\mpint.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\mpint_i.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\network.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\pageant.h
 # End Source File
 # Begin Source File
 
@@ -411,11 +591,55 @@ SOURCE=..\..\..\ssh.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\ssh1connection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2connection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\ssh2transport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshblowf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshbpp.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshchan.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshcr.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\sshgss.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\..\sshgssc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshppl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshserver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshsignals.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshttymodes.h
 # End Source File
 # Begin Source File
 
@@ -440,6 +664,10 @@ SOURCE=..\..\..\version.h
 # Begin Source File
 
 SOURCE=..\..\..\windows\rcstuff.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\windows\wincapi.h
 # End Source File
 # Begin Source File
 

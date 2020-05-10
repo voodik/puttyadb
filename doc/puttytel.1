@@ -18,7 +18,7 @@ The command-line options supported by \fBputtytel\fP are:
 .IP "\fB\-\-display\fP \fIdisplay\-name\fP"
 Specify the X display on which to open \fBputtytel\fP. (Note this option has a double minus sign, even though none of the others do. This is because this option is supplied automatically by GTK. Sorry.)
 .IP "\fB\-fn\fP \fIfont-name\fP"
-Specify the font to use for normal text displayed in the terminal.
+Specify the font to use for normal text displayed in the terminal. For example, \fB\-fn\ fixed\fP, \fB\-fn\ "Monospace\ 12"\fP.
 .IP "\fB\-fb\fP \fIfont-name\fP"
 Specify the font to use for bold text displayed in the terminal. If the \fBBoldAsColour\fP resource is set to 1 (the default), bold text will be displayed in different colours instead of a different font, so this option will be ignored. If \fBBoldAsColour\fP is set to 0 or 2 and you do not specify a bold font, \fBputtytel\fP will overprint the normal font to make it look bolder.
 .IP "\fB\-fw\fP \fIfont-name\fP"
@@ -47,7 +47,7 @@ Specify the initial title of the terminal window. (This can be changed under con
 Tells \fBputtytel\fP not to display a scroll bar.
 .IP "\fB\-sb\fP"
 Tells \fBputtytel\fP to display a scroll bar: this is the opposite of \fB\-sb\-\fP. This is the default option: you will probably only need to specify it explicitly if you have changed the default using the \fBScrollBar\fP resource.
-.IP "\fB\-log\fP \fIfilename\fP"
+.IP "\fB\-log\fP \fIlogfile\fP, \fB\-sessionlog\fP \fIlogfile\fP"
 This option makes \fBputtytel\fP log all the terminal output to a file as well as displaying it in the terminal.
 .IP "\fB\-cs\fP \fIcharset\fP"
 This option specifies the character set in which \fBputtytel\fP should assume the session is operating. This character set will be used to interpret all the data received from the session, and all input you type or paste into \fBputtytel\fP will be converted into this character set before being sent to the session.
@@ -69,10 +69,22 @@ Display the fingerprints of the PuTTY PGP Master Keys, to aid in verifying new f
 Load a saved session by name. This allows you to run a saved session straight from the command line without having to go through the configuration box first.
 .IP "\fB\-telnet\fP, \fB\-rlogin\fP, \fB\-raw\fP"
 Select the protocol \fBputtytel\fP will use to make the connection.
+.IP "\fB\-proxycmd\fP \fIcommand\fP"
+Instead of making a TCP connection, use \fIcommand\fP as a proxy; network traffic will be redirected to the standard input and output of \fIcommand\fP. \fIcommand\fP must be a single word, so is likely to need quoting by the shell.
+.RS
+.PP
+The special strings \fB%host\fP and \fB%port\fP in \fIcommand\fP will be replaced by the hostname and port number you want to connect to; to get a literal \fB%\fP sign, enter \fB%%\fP.
+.PP
+Backslash escapes are also supported, such as sequences like \fB\en\fP being replaced by a literal newline; to get a literal backslash, enter \fB\e\e\fP. (Further escaping may be required by the shell.)
+.PP
+(See the main PuTTY manual for full details of the supported \fB%\fP- and backslash-delimited tokens, although most of them are probably not very useful in this context.) 
+.RE
 .IP "\fB\-l\fP \fIusername\fP"
 Specify the username to use when logging in to the server.
 .IP "\fB\-P\fP \fIport\fP"
 Specify the port to connect to the server on.
+.IP "\fB-4\fP, \fB-6\fP"
+Force use of IPv4 or IPv6 for network connections.
 .SH "SAVED SESSIONS"
 .PP
 Saved sessions are stored in a \fB.putty/sessions\fP subdirectory in your home directory.
@@ -80,7 +92,7 @@ Saved sessions are stored in a \fB.putty/sessions\fP subdirectory in your home d
 .PP
 For more information on PuTTY and PuTTYtel, it's probably best to go and look at the manual on the web page:
 .PP
-\fBhttp://www.chiark.greenend.org.uk/~sgtatham/putty/\fP
+\fBhttps://www.chiark.greenend.org.uk/~sgtatham/putty/\fP
 .SH "BUGS"
 .PP
 This man page isn't terribly complete.

@@ -50,6 +50,9 @@ the URL; that way, we don't have to download it unless we decide we
 actually need it, and only one of us needs to download it instead of
 it being automatically copied to all the developers.
 
+(If the file contains confidential information, then you could encrypt
+it with our Secure Contact Key; see \k{pgpkeys-pubkey} for details.)
+
 Some people like to send mail in MS Word format. Please \e{don't}
 send us bug reports, or any other mail, as a Word document. Word
 documents are roughly fifty times larger than writing the same
@@ -109,7 +112,7 @@ If you think you have found a bug in PuTTY, your first steps should
 be:
 
 \b Check the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
 page} on the PuTTY website, and see if we already know about the
 problem. If we do, it is almost certainly not necessary to mail us
 about it, unless you think you have extra information that might be
@@ -118,12 +121,12 @@ specific extra information about a particular bug, the Wishlist page
 will say so.)
 
 \b Check the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{Change
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{Change
 Log} on the PuTTY website, and see if we have already fixed the bug
 in the \i{development snapshots}.
 
 \b Check the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/faq.html}{FAQ}
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/faq.html}{FAQ}
 on the PuTTY website (also provided as \k{faq} in the manual), and
 see if it answers your question. The FAQ lists the most common
 things which people think are bugs, but which aren't bugs.
@@ -145,15 +148,15 @@ information:
 use the \q{About PuTTY} option from the System menu. Please \e{do
 not} just tell us \q{I'm running the latest version}; e-mail can be
 delayed and it may not be obvious which version was the latest at
-the time you sent the message. 
+the time you sent the message.
 
 \b PuTTY is a multi-platform application; tell us what version of what
 OS you are running PuTTY on. (If you're running on Unix, or Windows
-for Alpha, tell us, or we'll assume you're running on Windows for
+for Arm, tell us, or we'll assume you're running on Windows for
 Intel as this is overwhelmingly the case.)
 
 \b Tell us what protocol you are connecting with: SSH, Telnet,
-Rlogin or Raw mode.
+Rlogin, or Raw mode, or a serial connection.
 
 \b Tell us what kind of server you are connecting to; what OS, and
 if possible what SSH server (if you're using SSH). You can get some
@@ -185,7 +188,7 @@ you haven't supplied us with full information about the actual bug,
 then we won't be able to find a better solution.
 
 \b
-\W{http://www.chiark.greenend.org.uk/~sgtatham/bugs.html}\cw{http://www.chiark.greenend.org.uk/~sgtatham/bugs.html}
+\W{https://www.chiark.greenend.org.uk/~sgtatham/bugs.html}\cw{https://www.chiark.greenend.org.uk/~sgtatham/bugs.html}
 is an article on how to report bugs effectively in general. If your
 bug report is \e{particularly} unclear, we may ask you to go away,
 read this article, and then report the bug again.
@@ -201,20 +204,34 @@ will explain what you need to know. \e{Then}, if you think the
 documentation could usefully have told you that, send us a bug
 report and explain how you think we should change it.
 
-\H{feedback-features} Requesting extra features 
+\H{feedback-vulns} Reporting security vulnerabilities
+
+If you've found a security vulnerability in PuTTY, you might well want
+to notify us using an encrypted communications channel, to avoid
+disclosing information about the vulnerability before a fixed release
+is available.
+
+For this purpose, we provide a GPG key suitable for encryption: the
+Secure Contact Key. See \k{pgpkeys-pubkey} for details of this.
+
+(Of course, vulnerabilities are also bugs, so please do include as
+much information as possible about them, the same way you would with
+any other bug report.)
+
+\H{feedback-features} Requesting extra features
 
 If you want to request a new feature in PuTTY, the very first things
 you should do are:
 
 \b Check the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
 page} on the PuTTY website, and see if your feature is already on
 the list. If it is, it probably won't achieve very much to repeat
 the request. (But see \k{feedback-feature-priority} if you want to
 persuade us to give your particular feature higher priority.)
 
 \b Check the Wishlist and
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{Change
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{Change
 Log} on the PuTTY website, and see if we have already added your
 feature in the development snapshots. If it isn't clear, download
 the latest development snapshot and see if the feature is present.
@@ -333,7 +350,7 @@ Of course, if the web site has some other error (Connection Refused,
 If you want to report a problem with our web site, check that you're
 looking at our \e{real} web site and not a mirror. The real web site
 is at
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/}\c{http://www.chiark.greenend.org.uk/~sgtatham/putty/};
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/}\c{https://www.chiark.greenend.org.uk/~sgtatham/putty/};
 if that's not where you're reading this, then don't report the
 problem to us until you've checked that it's really a problem with
 the main site. If it's only a problem with the mirror, you should
@@ -382,7 +399,7 @@ setting up a mirror. You already have permission.
 
 If the mirror is in a country where we don't already have plenty of
 mirrors, we may be willing to add it to the list on our
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/mirrors.html}{mirrors
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/mirrors.html}{mirrors
 page}. Read the guidelines on that page, make sure your mirror
 works, and email us the information listed at the bottom of the
 page.
@@ -397,7 +414,7 @@ to be a cheap way to gain search rankings.
 
 If you have technical questions about the process of mirroring, then
 you might want to mail us before setting up the mirror (see also the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/mirrors.html#guidelines}{guidelines on the Mirrors page});
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/mirrors.html#guidelines}{guidelines on the Mirrors page});
 but if you just want to ask for permission, you don't need to. You
 already have permission.
 

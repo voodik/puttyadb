@@ -27,34 +27,35 @@ else.
 
 \I{supported features}In general, if you want to know if PuTTY supports
 a particular feature, you should look for it on the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/}{PuTTY web site}.
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/}{PuTTY web site}.
 In particular:
 
 \b try the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{changes
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html}{changes
 page}, and see if you can find the feature on there. If a feature is
 listed there, it's been implemented. If it's listed as a change made
 \e{since} the latest version, it should be available in the
 development snapshots, in which case testing will be very welcome.
 
 \b try the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/}{Wishlist
 page}, and see if you can find the feature there. If it's on there,
 and not in the \q{Recently fixed} section, it probably \e{hasn't} been
 implemented.
 
 \S{faq-ssh2}{Question} Does PuTTY support SSH-2?
 
-Yes. SSH-2 support has been available in PuTTY since version 0.50.
+Yes. SSH-2 support has been available in PuTTY since version 0.50 in
+2000.
 
-Public key authentication (both RSA and DSA) in SSH-2 is new in
-version 0.52.
+Public key authentication (both RSA and DSA) in SSH-2 was new in
+version 0.52 in 2002.
 
 \S{faq-ssh2-keyfmt}{Question} Does PuTTY support reading OpenSSH or
 \cw{ssh.com} SSH-2 private key files?
 
 PuTTY doesn't support this natively (see
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/key-formats-natively.html}{the wishlist entry}
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/key-formats-natively.html}{the wishlist entry}
 for reasons why not), but as of 0.53
 PuTTYgen can convert both OpenSSH and \cw{ssh.com} private key
 files into PuTTY's format.
@@ -64,7 +65,10 @@ files into PuTTY's format.
 Yes. SSH-1 support has always been available in PuTTY.
 
 However, the SSH-1 protocol has many weaknesses and is no longer
-considered secure; it should be avoided if at all possible.
+considered secure; you should use SSH-2 instead if at all possible.
+
+As of 0.68, PuTTY will no longer fall back to SSH-1 if the server
+doesn't appear to support SSH-2; you must explicitly ask for SSH-1.
 
 \S{faq-localecho}{Question} Does PuTTY support \i{local echo}?
 
@@ -99,7 +103,7 @@ a method of achieving the same effect.
 \S{faq-fullscreen}{Question} Does PuTTY support full-screen mode,
 like a DOS box?
 
-Yes; this is a new feature in version 0.52.
+Yes; this was added in version 0.52, in 2002.
 
 \S{faq-password-remember}{Question} Does PuTTY have the ability to
 \i{remember my password} so I don't have to type it every time?
@@ -162,34 +166,38 @@ will not. Adding an option to turn host key checking off completely is
 the wrong solution and we will not do it.
 
 If you have host keys available in the common \i\c{known_hosts} format,
-we have a script called 
-\W{http://svn.tartarus.org/sgt/putty/contrib/kh2reg.py?view=markup}\c{kh2reg.py}
+we have a script called
+\W{https://git.tartarus.org/?p=simon/putty.git;a=blob;f=contrib/kh2reg.py;hb=HEAD}\c{kh2reg.py}
 to convert them to a Windows .REG file, which can be installed ahead of
 time by double-clicking or using \c{REGEDIT}.
 
 \S{faq-server}{Question} Will you write an SSH server for the PuTTY
 suite, to go with the client?
 
-No. The only reason we might want to would be if we could easily
-re-use existing code and significantly cut down the effort. We don't
-believe this is the case; there just isn't enough common ground
-between an SSH client and server to make it worthwhile.
+Not one that you'd want to use.
 
-If someone else wants to use bits of PuTTY in the process of writing
-a Windows SSH server, they'd be perfectly welcome to of course, but
-I really can't see it being a lot less effort for us to do that than
-it would be for us to write a server from the ground up. We don't
-have time, and we don't have motivation. The code is available if
-anyone else wants to try it.
+While much of the protocol and networking code can be made common
+between a client and server, to make a \e{useful} general-purpose
+server requires all sorts of fiddly new code like interacting with OS
+authentication databases and the like.
+
+A special-purpose SSH server (called \i{Uppity}) can now be built from
+the PuTTY source code, and indeed it is not usable as a
+general-purpose server; it exists mainly as a test harness.
+
+If someone else wants to use this as a basis for writing a
+general-purpose SSH server, they'd be perfectly welcome to of course;
+but we don't have time, and we don't have motivation. The code is
+available if anyone else wants to try it.
 
 \S{faq-pscp-ascii}{Question} Can PSCP or PSFTP transfer files in
 \i{ASCII} mode?
 
 Unfortunately not.
 
-Until recently, this was a limitation of the file transfer protocols:
-the SCP and SFTP protocols had no notion of transferring a file in
-anything other than binary mode. (This is still true of SCP.)
+This was a limitation of the file transfer protocols as originally
+specified: the SCP and SFTP protocols had no notion of transferring
+a file in anything other than binary mode. (This is still true of SCP.)
 
 The current draft protocol spec of SFTP proposes a means of
 implementing ASCII transfer. At some point PSCP/PSFTP may implement
@@ -200,61 +208,63 @@ this proposal.
 The eventual goal is for PuTTY to be a multi-platform program, able
 to run on at least Windows, Mac OS and Unix.
 
-Porting will become easier once PuTTY has a generalised porting
-layer, drawing a clear line between platform-dependent and
-platform-independent code. The general intention was for this
-porting layer to evolve naturally as part of the process of doing
-the first port; a Unix port has now been released and the plan
-seems to be working so far.
+PuTTY has been gaining a generalised porting layer, drawing a clear
+line between platform-dependent and platform-independent code. The
+general intention was for this porting layer to evolve naturally as
+part of the process of doing the first port; a Unix port has now been
+released and the plan seems to be working so far.
 
 \S{faq-ports-general}{Question} What ports of PuTTY exist?
 
-Currently, release versions of PuTTY tools only run on full Win32
-systems and Unix. \q{\i{Win32}} includes versions of Windows from
-Windows 95 onwards (as opposed to the 16-bit Windows 3.1; see
-\k{faq-win31}), up to and including Windows 7; and we know of no
-reason why PuTTY should not continue to work on future versions
-of Windows.
+Currently, release versions of PuTTY tools only run on Windows
+systems and Unix.
 
-The Windows executables we provide are for the 32-bit \q{\i{x86}}
-processor architecture, but they should work fine on 64-bit
-processors that are backward-compatible with that architecture.
+As of 0.68, the supplied PuTTY executables run on versions of Windows
+from XP onwards, up to and including Windows 10; and we know of no
+reason why PuTTY should not continue to work on future versions of
+Windows. We provide 32-bit and 64-bit Windows executables for the
+common x86 processor family; see \k{faq-32bit-64bit} for discussion
+of the compatibility issues around that. The 32-bit executables
+require a \i{Pentium 4} or newer processor. We also provide
+executables for Windows on Arm processors.
+
 (We used to also provide executables for Windows for the Alpha
 processor, but stopped after 0.58 due to lack of interest.)
 
-In the development code, partial ports to the Mac OSes exist (see
+In the development code, a partial port to Mac OS exists (see
 \k{faq-mac-port}).
 
 Currently PuTTY does \e{not} run on Windows CE (see \k{faq-wince}).
 
 We do not have release-quality ports for any other systems at the
-present time. If anyone told you we had an EPOC port, or an iPaq port,
-or any other port of PuTTY, they were mistaken. We don't.
+present time. If anyone told you we had an Android port, or an iOS
+port, or any other port of PuTTY, they were mistaken. We don't.
 
 There are some third-party ports to various platforms, mentioned
-on the 
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/links.html}{Links page of our website}.
+on the
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/links.html}{Links page of our website}.
 
 \S{faq-unix}{Question} \I{Unix version}Is there a port to Unix?
 
-As of 0.54, there are Unix ports of most of the traditional PuTTY
-tools, and also one entirely new application.
+There are Unix ports of most of the traditional PuTTY tools, and also
+one entirely new application.
 
 If you look at the source release, you should find a \c{unix}
 subdirectory. There are a couple of ways of building it,
 including the usual \c{configure}/\c{make}; see the file \c{README}
-in the source distribution. This should build you Unix
-ports of Plink, PuTTY itself, PuTTYgen, PSCP, PSFTP, and also
-\i\c{pterm} - an \cw{xterm}-type program which supports the same
-terminal emulation as PuTTY. We do not yet have a Unix port of
-Pageant.
+in the source distribution. This should build you:
+
+\b Unix ports of PuTTY, Plink, PSCP, and PSFTP, which work pretty much
+the same as their Windows counterparts;
+
+\b Command-line versions of PuTTYgen and Pageant, whose user interface
+is quite different to the Windows GUI versions;
+
+\b \i\c{pterm} - an \cw{xterm}-type program which supports the same
+terminal emulation as PuTTY.
 
 If you don't have \i{Gtk}, you should still be able to build the
 command-line tools.
-
-Note that Unix PuTTY has mostly only been tested on Linux so far;
-portability problems such as BSD-style ptys or different header file
-requirements are expected.
 
 \S{faq-unix-why}{Question} What's the point of the Unix port? Unix
 has OpenSSH.
@@ -280,12 +290,9 @@ expect our Unix port to be the right thing for everybody.
 
 \S{faq-wince}{Question} Will there be a port to Windows CE or PocketPC?
 
-We have done some work on such a port, but it only reached an early
+We once did some work on such a port, but it only reached an early
 stage, and certainly not a useful one. It's no longer being actively
 worked on.
-
-However, there's a third-party port at
-\W{http://www.pocketputty.net/}\c{http://www.pocketputty.net/}.
 
 \S{faq-win31}{Question} Is there a port to \i{Windows 3.1}?
 
@@ -301,23 +308,24 @@ you'll need the right kind of C compiler - modern versions of Visual
 C at least have stopped being backwards compatible to Win32s. Also,
 the last time we tried this it didn't work very well.
 
-If you're interested in running PuTTY under Windows 3.1, help and
-testing in this area would be very welcome!
-
 \S{faq-mac-port}{Question} Will there be a port to the \I{Mac OS}Mac?
 
-There are several answers to this question:
+We hope so!
 
-\b The Unix/Gtk port is already fully working under Mac OS X as an X11
-application.
+We attempted one around 2005, written as a native Cocoa application,
+but it turned out to be very slow to redraw its window for some reason
+we never got to the bottom of.
 
-\b A native (Cocoa) Mac OS X port has been started. It's just about
-usable, but is of nowhere near release quality yet, and is likely to
-behave in unexpected ways. Currently it's unlikely to be completed
-unless someone steps in to help.
+In 2015, after porting the GTK front end to work with GTK 3, we began
+another attempt based on making small changes to the GTK code and
+building it against the OS X Quartz version of GTK 3. This doesn't
+seem to have the window redrawing problem any more, so it's already
+got further than the last effort, but it is still substantially
+unfinished.
 
-\b A separate port to the classic Mac OS (pre-OSX) is also in
-progress; it too is not ready yet.
+If any OS X and/or GTK programming experts are keen to have a finished
+version of this, we urge them to help out with some of the remaining
+problems! See the TODO list in \c{unix/gtkapp.c} in the source code.
 
 \S{faq-epoc}{Question} Will there be a port to EPOC?
 
@@ -327,15 +335,14 @@ for, it might be a long time before any of us get round to learning
 a new system and doing the port for that.
 
 However, some of the work has been done by other people; see the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/links.html}{Links page of our website}
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/links.html}{Links page of our website}
 for various third-party ports.
 
 \S{faq-iphone}{Question} Will there be a port to the iPhone?
 
 We have no plans to write such a port ourselves; none of us has an
 iPhone, and developing and publishing applications for it looks
-awkward and expensive. Such a port would probably depend upon the
-stalled Mac OS X port (see \k{faq-mac-port}).
+awkward and expensive.
 
 However, there is a third-party SSH client for the iPhone and
 iPod\_Touch called \W{http://www.instantcocoa.com/products/pTerm/}{pTerm},
@@ -356,7 +363,7 @@ Most of the code cleanup work would be a good thing to happen in
 general, so if anyone feels like helping, we wouldn't say no.
 
 See also
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/dll-frontend.html}{the wishlist entry}.
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/dll-frontend.html}{the wishlist entry}.
 
 \S{faq-vb}{Question} Is the SSH or Telnet code available as a Visual
 Basic component?
@@ -421,7 +428,58 @@ put your chosen pathname in the Registry, at
 
 You can ask PuTTY to delete all this data; see \k{faq-cleanup}.
 
-On Unix, PuTTY stores all of this data in a directory \cw{~/.putty}.
+On Unix, PuTTY stores all of this data in a directory \cw{~/.putty}
+by default.
+
+\S{faq-trust-sigils} Why do small \i{PuTTY icon}s appear next to the login
+prompts?
+
+As of PuTTY 0.71, some lines of text in the terminal window are marked
+with a small copy of the PuTTY icon (as far as pixels allow).
+
+This is to show trustworthiness. When the PuTTY icon appears next to a
+line of text, it indicates that that line of text was generated by
+PuTTY itself, and not generated by the server and sent to PuTTY.
+
+Text that comes from the server does not have this icon, and we've
+arranged that the server should not be able to fake it. (There's no
+control sequence the server can send which will make PuTTY draw its
+own icon, and if the server tries to move the cursor back up to a line
+that \e{already} has an icon and overwrite the text, the icon will
+disappear.)
+
+This lets you tell the difference between (for example) a legitimate
+prompt in which PuTTY itself asks you for your private key passphrase,
+and a fake prompt in which the server tries to send the identical text
+to trick you into telling \e{it} your private key passphrase.
+
+\S{faq-plink-pause} Why has Plink started saying \q{Press Return to
+begin session}?
+
+As of PuTTY 0.71, if you use Plink for an interactive SSH session,
+then after the login phase has finished, it will present a final
+interactive prompt saying \q{Access granted. Press Return to begin
+session}.
+
+This is another defence against servers trying to mimic the real
+authentication prompts after the session has started. When you pass
+through that prompt, you know that everything after it is generated by
+the server and not by Plink itself, so any request for your private
+key passphrase should be treated with suspicion.
+
+In Plink, we can't use the defence described in \k{faq-trust-sigils}:
+Plink is running \e{in} the terminal, so anything it can write into
+the terminal, the server could write in the same way after the session
+starts. And we can't just print a separator line without a pause,
+because then the server could simply move the cursor back up to it and
+overwrite it (probably with a brief flicker, but you might easily miss
+that). The only robust defence anyone has come up with involves this
+pause.
+
+If you trust your server not to be abusive, you can turn this off. It
+will also not appear in various other circumstances where Plink can be
+confident it isn't necessary. See \k{plink-option-antispoof} for
+details.
 
 \H{faq-howto} HOWTO questions
 
@@ -581,35 +639,29 @@ of quotes in the obvious way:
 \c pscp "local file" user@host:
 \c pscp user@host:"remote file" .
 
+\S{faq-32bit-64bit}{Question} Should I run the 32-bit or the
+64-bit version?
+
+If you're not sure, the \I{32-bit Windows}32-bit version is generally
+the safe option. It will run perfectly well on all processors and on
+all versions of Windows that PuTTY supports. PuTTY doesn't require to
+run as a 64-bit application to work well, and having a 32-bit PuTTY on
+a 64-bit system isn't likely to cause you any trouble.
+
+The 64-bit version (first released in 0.68) will only run if you have
+a 64-bit processor \e{and} a \I{64-bit Windows}64-bit edition of
+Windows (both of these things are likely to be true of any recent
+Windows PC). It will run somewhat faster (in particular, the
+cryptography will be faster, especially during link setup), but it
+will consume slightly more memory.
+
+If you need to use an external \i{DLL} for GSSAPI authentication, that
+DLL may only be available in a 32-bit or 64-bit form, and that will
+dictate the version of PuTTY you need to use. (You will probably know
+if you're doing this; see \k{config-ssh-auth-gssapi-libraries} in the
+documentation.)
+
 \H{faq-trouble} Troubleshooting
-
-\S{faq-incorrect-mac}{Question} Why do I see \q{Incorrect MAC
-received on packet}?
-
-One possible cause of this that used to be common is a bug in old
-SSH-2 servers distributed by \cw{ssh.com}. (This is not the only
-possible cause; see \k{errors-crc} in the documentation.)
-Version 2.3.0 and below of their SSH-2 server
-constructs Message Authentication Codes in the wrong way, and
-expects the client to construct them in the same wrong way. PuTTY
-constructs the MACs correctly by default, and hence these old
-servers will fail to work with it.
-
-If you are using PuTTY version 0.52 or better, this should work
-automatically: PuTTY should detect the buggy servers from their
-version number announcement, and automatically start to construct
-its MACs in the same incorrect manner as they do, so it will be able
-to work with them.
-
-If you are using PuTTY version 0.51 or below, you can enable the
-workaround by going to the SSH panel and ticking the box labelled
-\q{Imitate SSH2 MAC bug}. It's possible that you might have to do
-this with 0.52 as well, if a buggy server exists that PuTTY doesn't
-know about.
-
-In this context MAC stands for \ii{Message Authentication Code}. It's a
-cryptographic term, and it has nothing at all to do with Ethernet
-MAC (Media Access Control) addresses.
 
 \S{faq-pscp-protocol}{Question} Why do I see \q{Fatal: Protocol
 error: Expected control record} in PSCP?
@@ -645,21 +697,6 @@ you should select \q{Default Foreground} and press \q{Modify}.
 Clicking on \q{ANSI Green} won't turn your session green; it will
 only allow you to adjust the \e{shade} of green used when PuTTY is
 instructed by the server to display green text.
-
-\S{faq-winsock2}{Question} Plink on \i{Windows 95} says it can't find
-\i\cw{WS2_32.DLL}.
-
-Plink requires the extended Windows network library, WinSock version
-2. This is installed as standard on Windows 98 and above, and on
-Windows NT, and even on later versions of Windows 95; but early
-Win95 installations don't have it.
-
-In order to use Plink on these systems, you will need to download
-the
-\W{http://www.microsoft.com/windows95/downloads/contents/wuadmintools/s_wunetworkingtools/w95sockets2/}{WinSock 2 upgrade}:
-
-\c http://www.microsoft.com/windows95/downloads/contents/
-\c   wuadmintools/s_wunetworkingtools/w95sockets2/
 
 \S{faq-outofmem}{Question} After trying to establish an SSH-2
 connection, PuTTY says \q{\ii{Out of memory}} and dies.
@@ -873,44 +910,9 @@ us \q{I wanted the F1 key to send \c{^[[11~}, but instead it's
 sending \c{^[OP}, can this be done?}, or something similar.
 
 You should still read the
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html}{Feedback
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html}{Feedback
 page} on the PuTTY website (also provided as \k{feedback} in the
 manual), and follow the guidelines contained in that.
-
-\S{faq-openssh-bad-openssl}{Question} Since my SSH server was upgraded
-to \i{OpenSSH} 3.1p1/3.4p1, I can no longer connect with PuTTY.
-
-There is a known problem when OpenSSH has been built against an
-incorrect version of OpenSSL; the quick workaround is to configure
-PuTTY to use SSH protocol 2 and the Blowfish cipher.
-
-For more details and OpenSSH patches, see
-\W{http://bugzilla.mindrot.org/show_bug.cgi?id=138}{bug 138} in the
-OpenSSH BTS.
-
-This is not a PuTTY-specific problem; if you try to connect with
-another client you'll likely have similar problems. (Although PuTTY's
-default cipher differs from many other clients.)
-
-\e{OpenSSH 3.1p1:} configurations known to be broken (and symptoms):
-
-\b SSH-2 with AES cipher (PuTTY says \q{Assertion failed! Expression:
-(len & 15) == 0} in \cw{sshaes.c}, or \q{Out of memory}, or crashes)
-
-\b SSH-2 with 3DES (PuTTY says \q{Incorrect MAC received on packet})
-
-\b SSH-1 with Blowfish (PuTTY says \q{Incorrect CRC received on
-packet})
-
-\b SSH-1 with 3DES
-
-\e{OpenSSH 3.4p1:} as of 3.4p1, only the problem with SSH-1 and
-Blowfish remains. Rebuild your server, apply the patch linked to from
-bug 138 above, or use another cipher (e.g., 3DES) instead.
-
-\e{Other versions:} we occasionally get reports of the same symptom
-and workarounds with older versions of OpenSSH, although it's not
-clear the underlying cause is the same.
 
 \S{faq-ssh2key-ssh1conn}{Question} Why do I see \q{Couldn't load
 private key from ...}? Why can PuTTYgen load my key but not PuTTY?
@@ -989,7 +991,7 @@ means you need to use non-\cw{127.0.0.1} addresses to forward
 Terminal Services in the first place.)
 
 \S{faq-missing-slash}{Question} PSFTP commands seem to be missing a
-directory separator (slash). 
+directory separator (slash).
 
 Some people have reported the following incorrect behaviour with
 PSFTP:
@@ -1042,10 +1044,10 @@ still. We do not recommend it.)
 
 This is caused by a bug in certain versions of \i{Windows XP} which
 is triggered by PuTTY 0.58. This was fixed in 0.59. The
-\W{http://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/xp-wont-run}{\q{xp-wont-run}}
+\W{https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/xp-wont-run}{\q{xp-wont-run}}
 entry in PuTTY's wishlist has more details.
 
-\S{faq-system32}{Question} When I put PuTTY in
+\S{faq-system32}{Question} When I put 32-bit PuTTY in
 \cw{C:\\WINDOWS\\\i{SYSTEM32}} on my \i{64-bit Windows} system,
 \i{\q{Duplicate Session}} doesn't work.
 
@@ -1053,7 +1055,7 @@ The short answer is not to put the PuTTY executables in that location.
 
 On 64-bit systems, \cw{C:\\WINDOWS\\SYSTEM32} is intended to contain
 only 64-bit binaries; Windows' 32-bit binaries live in
-\cw{C:\\WINDOWS\\SYSWOW64}. When a 32-bit program such as PuTTY runs
+\cw{C:\\WINDOWS\\SYSWOW64}. When a 32-bit PuTTY executable runs
 on a 64-bit system, it cannot by default see the \q{real}
 \cw{C:\\WINDOWS\\SYSTEM32} at all, because the
 \W{http://msdn.microsoft.com/en-us/library/aa384187(v=vs.85).aspx}{File
@@ -1061,6 +1063,26 @@ System Redirector} arranges that the running program sees the
 appropriate kind of binaries in \cw{SYSTEM32}. Thus, operations in
 the PuTTY suite that involve it accessing its own executables, such as
 \i{\q{New Session}} and \q{Duplicate Session}, will not work.
+
+\S{faq-iutf8}{Question} After I upgraded PuTTY to 0.68, I can no longer
+connect to my embedded device or appliance.
+
+If your SSH server has started unexpectedly closing SSH connections
+after you enter your password, and it worked before 0.68, you may have
+a buggy server that objects to certain SSH protocol extensions.
+
+The SSH protocol recently gained a new \q{terminal mode}, \cw{IUTF8},
+which PuTTY sends by default; see \k{config-ttymodes}. This is the
+first new terminal mode since the SSH-2 protocol was defined. While
+servers are supposed to ignore modes they don't know about, some buggy
+servers will unceremoniously close the connection if they see anything
+they don't recognise. SSH servers in embedded devices, network
+appliances, and the like seem to disproportionately have this bug.
+
+If you think you have such a server, from 0.69 onwards you can disable
+sending of the \cw{IUTF8} mode: on the SSH / TTY panel, select
+\cw{IUTF8} on the list, select \q{Nothing}, and press \q{Set}. (It's
+not possible to disable sending this mode in 0.68.)
 
 \H{faq-secure} Security questions
 
@@ -1083,15 +1105,21 @@ USB stick).
 I \i{clean up} after it?
 
 PuTTY will leave some Registry entries, and a random seed file, on
-the PC (see \k{faq-settings}). If you are using PuTTY on a public
-PC, or somebody else's PC, you might want to clean these up when you
-leave. You can do that automatically, by running the command
-\c{putty -cleanup}. (Note that this only removes settings for
-the currently logged-in user on \i{multi-user systems}.)
+the PC (see \k{faq-settings}). Windows 7 and up also remember some
+information about recently launched sessions for the \q{jump list}
+feature.
+
+If you are using PuTTY on a public PC, or somebody else's PC, you
+might want to clean this information up when you leave. You can do
+that automatically, by running the command \c{putty -cleanup}. See
+\k{using-cleanup} in the documentation for more detail. (Note that
+this only removes settings for the currently logged-in user on
+\i{multi-user systems}.)
 
 If PuTTY was installed from the installer package, it will also
-appear in \q{Add/Remove Programs}. Older versions of the uninstaller
-do not remove the above-mentioned registry entries and file.
+appear in \q{Add/Remove Programs}. Current versions of the installer
+do not offer to remove the above-mentioned items, so if you want them
+removed you should run \c{putty -cleanup} before uninstalling.
 
 \S{faq-dsa}{Question} How come PuTTY now supports \i{DSA}, when the
 website used to say how insecure it was?
@@ -1106,8 +1134,13 @@ The PuTTY policy changed because the developers were informed of
 ways to implement DSA which do not suffer nearly as badly from this
 weakness, and indeed which don't need to rely on random numbers at
 all. For this reason we now believe PuTTY's DSA implementation is
-probably OK. However, if you have the choice, we still recommend you
-use RSA instead.
+probably OK.
+
+The recently added elliptic-curve signature methods are also DSA-style
+algorithms, so they have this same weakness in principle. Our ECDSA
+implementation uses the same defence as DSA, while our Ed25519
+implementation uses the similar system (but different in details) that
+the Ed25519 spec mandates.
 
 \S{faq-virtuallock}{Question} Couldn't Pageant use
 \cw{VirtualLock()} to stop private keys being written to disk?
@@ -1489,6 +1522,45 @@ making this mistake, we urge you to reorganise your list of software
 suppliers so that it clearly distinguishes paid vendors who know about
 you from free software developers who don't have any idea who you are.
 Then, only send out these mass mailings to the former.
+
+\S{faq-checksums}{Question} The \c{sha1sums} / \c{sha256sums} / etc
+files on your download page don't match the binaries.
+
+People report this every so often, and usually the reason turns out to
+be that they've matched up the wrong checksums file with the wrong
+binaries.
+
+The PuTTY download page contains more than one version of the
+software. There's a \e{latest release} version; there are the
+\e{development snapshots}; and when we're in the run-up to making a
+release, there are also \e{pre-release} builds of the upcoming new
+version. Each one has its own collection of binaries, and its own
+collection of checksums files to go with them.
+
+So if you've downloaded the release version of the actual program, you
+need the release version of the checksums too, otherwise you will see
+a mismatch. Similarly, the development snapshot binaries go with the
+development snapshot checksums, and so on. (We've colour-coded the
+download page in an effort to reduce this confusion a bit.)
+
+Another thing to watch out for: as of 0.71, executables like
+\c{putty.exe} come in two flavours for each platform: the standalone
+versions on the website, each of which contains embedded help, and the
+versions installed by the installer, which use a separate help file
+also in the installer. We provide checksums for both; the latter are
+indicated with \cq{(installer version)} after the filename.
+
+If you have double-checked all that, and you still think there's a real
+mismatch, then please send us a report carefully quoting everything
+relevant:
+
+\b the exact URL you got your binary from
+
+\b the checksum of the binary after you downloaded
+
+\b the exact URL you got your checksums file from
+
+\b the checksum that file says the binary should have.
 
 \H{faq-misc} Miscellaneous questions
 

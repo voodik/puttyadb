@@ -7,19 +7,13 @@
 #include <assert.h>
 #include <limits.h>
 
-#define DEFINE_PLUG_METHOD_MACROS
 #include "tree234.h"
 #include "putty.h"
 #include "network.h"
 
-typedef struct Socket_handle_tag *Handle_Socket;
-
-struct Socket_handle_tag {
-    const struct socket_function_table *fn;
-    /* the above variable absolutely *must* be the first in this structure */
-
-    HANDLE send_H, recv_H;
-    struct handle *send_h, *recv_h;
+typedef struct HandleSocket {
+    HANDLE send_H, recv_H, stderr_H;
+    struct handle *send_h, *recv_h, *stderr_h;
 
     /*
      * Freezing one of these sockets is a slightly fiddly business,
@@ -39,30 +33,40 @@ struct Socket_handle_tag {
     /* We buffer data here if we receive it from winhandl while frozen. */
     bufchain inputdata;
 
+    /* Handle logging proxy error messages from stderr_H, if we have one. */
+    ProxyStderrBuf psb;
+
+    bool defer_close, deferred_close;   /* in case of re-entrance */
+
     char *error;
 
-    Plug plug;
-};
+    Plug *plug;
 
-static int handle_gotdata(struct handle *h, void *data, int len)
+    Socket sock;
+} HandleSocket;
+
+static size_t handle_gotdata(
+    struct handle *h, const void *data, size_t len, int err)
 {
-    Handle_Socket ps = (Handle_Socket) handle_get_privdata(h);
+    HandleSocket *hs = (HandleSocket *)handle_get_privdata(h);
 
-    if (len < 0) {
-	return plug_closing(ps->plug, "Read error from handle",
-			    0, 0);
+    if (err) {
+        plug_closing(hs->plug, "Read error from handle", 0, 0);
+        return 0;
     } else if (len == 0) {
-	return plug_closing(ps->plug, NULL, 0, 0);
+        plug_closing(hs->plug, NULL, 0, 0);
+        return 0;
     } else {
-        assert(ps->frozen != FREEZING && ps->frozen != THAWING);
-        if (ps->frozen == FREEZING) {
+        assert(hs->frozen != FROZEN && hs->frozen != THAWING);
+        if (hs->frozen == FREEZING) {
             /*
              * If we've received data while this socket is supposed to
              * be frozen (because the read winhandl.c started before
              * sk_set_frozen was called has now returned) then buffer
              * the data for when we unfreeze.
              */
-            bufchain_add(&ps->inputdata, data, len);
+            bufchain_add(&hs->inputdata, data, len);
+            hs->frozen = FROZEN;
 
             /*
              * And return a very large backlog, to prevent further
@@ -70,49 +74,73 @@ static int handle_gotdata(struct handle *h, void *data, int len)
              */
             return INT_MAX;
         } else {
-            return plug_receive(ps->plug, 0, data, len);
+            plug_receive(hs->plug, 0, data, len);
+            return 0;
         }
     }
 }
 
-static void handle_sentdata(struct handle *h, int new_backlog)
+static size_t handle_stderr(
+    struct handle *h, const void *data, size_t len, int err)
 {
-    Handle_Socket ps = (Handle_Socket) handle_get_privdata(h);
-    
-    plug_sent(ps->plug, new_backlog);
+    HandleSocket *hs = (HandleSocket *)handle_get_privdata(h);
+
+    if (!err && len > 0)
+        log_proxy_stderr(hs->plug, &hs->psb, data, len);
+
+    return 0;
 }
 
-static Plug sk_handle_plug(Socket s, Plug p)
+static void handle_sentdata(struct handle *h, size_t new_backlog, int err)
 {
-    Handle_Socket ps = (Handle_Socket) s;
-    Plug ret = ps->plug;
+    HandleSocket *hs = (HandleSocket *)handle_get_privdata(h);
+
+    if (err) {
+        plug_closing(hs->plug, win_strerror(err), err, 0);
+        return;
+    }
+
+    plug_sent(hs->plug, new_backlog);
+}
+
+static Plug *sk_handle_plug(Socket *s, Plug *p)
+{
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
+    Plug *ret = hs->plug;
     if (p)
-	ps->plug = p;
+        hs->plug = p;
     return ret;
 }
 
-static void sk_handle_close(Socket s)
+static void sk_handle_close(Socket *s)
 {
-    Handle_Socket ps = (Handle_Socket) s;
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
 
-    handle_free(ps->send_h);
-    handle_free(ps->recv_h);
-    CloseHandle(ps->send_H);
-    if (ps->recv_H != ps->send_H)
-        CloseHandle(ps->recv_H);
-    bufchain_clear(&ps->inputdata);
+    if (hs->defer_close) {
+        hs->deferred_close = true;
+        return;
+    }
 
-    sfree(ps);
+    handle_free(hs->send_h);
+    handle_free(hs->recv_h);
+    CloseHandle(hs->send_H);
+    if (hs->recv_H != hs->send_H)
+        CloseHandle(hs->recv_H);
+    bufchain_clear(&hs->inputdata);
+
+    delete_callbacks_for_context(hs);
+
+    sfree(hs);
 }
 
-static int sk_handle_write(Socket s, const char *data, int len)
+static size_t sk_handle_write(Socket *s, const void *data, size_t len)
 {
-    Handle_Socket ps = (Handle_Socket) s;
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
 
-    return handle_write(ps->send_h, data, len);
+    return handle_write(hs->send_h, data, len);
 }
 
-static int sk_handle_write_oob(Socket s, const char *data, int len)
+static size_t sk_handle_write_oob(Socket *s, const void *data, size_t len)
 {
     /*
      * oob data is treated as inband; nasty, but nothing really
@@ -121,64 +149,64 @@ static int sk_handle_write_oob(Socket s, const char *data, int len)
     return sk_handle_write(s, data, len);
 }
 
-static void sk_handle_write_eof(Socket s)
+static void sk_handle_write_eof(Socket *s)
 {
-    Handle_Socket ps = (Handle_Socket) s;
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
 
-    handle_write_eof(ps->send_h);
+    handle_write_eof(hs->send_h);
 }
 
-static void sk_handle_flush(Socket s)
+static void handle_socket_unfreeze(void *hsv)
 {
-    /* Handle_Socket ps = (Handle_Socket) s; */
-    /* do nothing */
-}
-
-static void handle_socket_unfreeze(void *psv)
-{
-    Handle_Socket ps = (Handle_Socket) psv;
-    void *data;
-    int len, new_backlog;
+    HandleSocket *hs = (HandleSocket *)hsv;
 
     /*
      * If we've been put into a state other than THAWING since the
      * last callback, then we're done.
      */
-    if (ps->frozen != THAWING)
+    if (hs->frozen != THAWING)
         return;
 
     /*
      * Get some of the data we've buffered.
      */
-    bufchain_prefix(&ps->inputdata, &data, &len);
-    assert(len > 0);
+    ptrlen data = bufchain_prefix(&hs->inputdata);
+    assert(data.len > 0);
 
     /*
-     * Hand it off to the plug.
+     * Hand it off to the plug. Be careful of re-entrance - that might
+     * have the effect of trying to close this socket.
      */
-    new_backlog = plug_receive(ps->plug, 0, data, len);
+    hs->defer_close = true;
+    plug_receive(hs->plug, 0, data.ptr, data.len);
+    bufchain_consume(&hs->inputdata, data.len);
+    hs->defer_close = false;
+    if (hs->deferred_close) {
+        sk_handle_close(&hs->sock);
+        return;
+    }
 
-    if (bufchain_size(&ps->inputdata) > 0) {
+    if (bufchain_size(&hs->inputdata) > 0) {
         /*
          * If there's still data in our buffer, stay in THAWING state,
          * and reschedule ourself.
          */
-        queue_toplevel_callback(handle_socket_unfreeze, ps);
+        queue_toplevel_callback(handle_socket_unfreeze, hs);
     } else {
         /*
          * Otherwise, we've successfully thawed!
          */
-        ps->frozen = UNFROZEN;
-        handle_unthrottle(ps->recv_h, new_backlog);
+        hs->frozen = UNFROZEN;
+        handle_unthrottle(hs->recv_h, 0);
     }
 }
 
-static void sk_handle_set_frozen(Socket s, int is_frozen)
+static void sk_handle_set_frozen(Socket *s, bool is_frozen)
 {
-    Handle_Socket ps = (Handle_Socket) s;
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
 
     if (is_frozen) {
-        switch (ps->frozen) {
+        switch (hs->frozen) {
           case FREEZING:
           case FROZEN:
             return;                    /* nothing to do */
@@ -190,7 +218,7 @@ static void sk_handle_set_frozen(Socket s, int is_frozen)
              * throttled, so just return to FROZEN state. The toplevel
              * callback will notice and disable itself.
              */
-            ps->frozen = FROZEN;
+            hs->frozen = FROZEN;
             break;
 
           case UNFROZEN:
@@ -198,11 +226,11 @@ static void sk_handle_set_frozen(Socket s, int is_frozen)
              * The normal case. Go to FREEZING, and expect one more
              * load of data from winhandl if we're unlucky.
              */
-            ps->frozen = FREEZING;
+            hs->frozen = FREEZING;
             break;
         }
     } else {
-        switch (ps->frozen) {
+        switch (hs->frozen) {
           case UNFROZEN:
           case THAWING:
             return;                    /* nothing to do */
@@ -213,8 +241,8 @@ static void sk_handle_set_frozen(Socket s, int is_frozen)
              * we were frozen, then we'll still be in this state and
              * can just unfreeze in the trivial way.
              */
-            assert(bufchain_size(&ps->inputdata) == 0);
-            ps->frozen = UNFROZEN;
+            assert(bufchain_size(&hs->inputdata) == 0);
+            hs->frozen = UNFROZEN;
             break;
 
           case FROZEN:
@@ -222,46 +250,94 @@ static void sk_handle_set_frozen(Socket s, int is_frozen)
              * If we have buffered data, go to THAWING and start
              * releasing it in top-level callbacks.
              */
-            ps->frozen = THAWING;
-            queue_toplevel_callback(handle_socket_unfreeze, ps);
+            hs->frozen = THAWING;
+            queue_toplevel_callback(handle_socket_unfreeze, hs);
         }
     }
 }
 
-static const char *sk_handle_socket_error(Socket s)
+static const char *sk_handle_socket_error(Socket *s)
 {
-    Handle_Socket ps = (Handle_Socket) s;
-    return ps->error;
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
+    return hs->error;
 }
 
-Socket make_handle_socket(HANDLE send_H, HANDLE recv_H, Plug plug,
-                          int overlapped)
+static SocketPeerInfo *sk_handle_peer_info(Socket *s)
 {
-    static const struct socket_function_table socket_fn_table = {
-	sk_handle_plug,
-	sk_handle_close,
-	sk_handle_write,
-	sk_handle_write_oob,
-	sk_handle_write_eof,
-	sk_handle_flush,
-	sk_handle_set_frozen,
-	sk_handle_socket_error
-    };
+    HandleSocket *hs = container_of(s, HandleSocket, sock);
+    ULONG pid;
+    static HMODULE kernel32_module;
+    DECL_WINDOWS_FUNCTION(static, BOOL, GetNamedPipeClientProcessId,
+                          (HANDLE, PULONG));
 
-    Handle_Socket ret;
+    if (!kernel32_module) {
+        kernel32_module = load_system32_dll("kernel32.dll");
+#if (defined _MSC_VER && _MSC_VER < 1900) || defined __MINGW32__ || defined COVERITY
+        /* For older Visual Studio, and MinGW too (at least as of
+         * Ubuntu 16.04), this function isn't available in the header
+         * files to type-check. Ditto the toolchain I use for
+         * Coveritying the Windows code. */
+        GET_WINDOWS_FUNCTION_NO_TYPECHECK(
+            kernel32_module, GetNamedPipeClientProcessId);
+#else
+        GET_WINDOWS_FUNCTION(
+            kernel32_module, GetNamedPipeClientProcessId);
+#endif
+    }
+
+    /*
+     * Of course, not all handles managed by this module will be
+     * server ends of named pipes, but if they are, then it's useful
+     * to log what we can find out about the client end.
+     */
+    if (p_GetNamedPipeClientProcessId &&
+        p_GetNamedPipeClientProcessId(hs->send_H, &pid)) {
+        SocketPeerInfo *pi = snew(SocketPeerInfo);
+        pi->addressfamily = ADDRTYPE_LOCAL;
+        pi->addr_text = NULL;
+        pi->port = -1;
+        pi->log_text = dupprintf("process id %lu", (unsigned long)pid);
+        return pi;
+    }
+
+    return NULL;
+}
+
+static const SocketVtable HandleSocket_sockvt = {
+    sk_handle_plug,
+    sk_handle_close,
+    sk_handle_write,
+    sk_handle_write_oob,
+    sk_handle_write_eof,
+    sk_handle_set_frozen,
+    sk_handle_socket_error,
+    sk_handle_peer_info,
+};
+
+Socket *make_handle_socket(HANDLE send_H, HANDLE recv_H, HANDLE stderr_H,
+                           Plug *plug, bool overlapped)
+{
+    HandleSocket *hs;
     int flags = (overlapped ? HANDLE_FLAG_OVERLAPPED : 0);
 
-    ret = snew(struct Socket_handle_tag);
-    ret->fn = &socket_fn_table;
-    ret->plug = plug;
-    ret->error = NULL;
-    ret->frozen = UNFROZEN;
-    bufchain_init(&ret->inputdata);
+    hs = snew(HandleSocket);
+    hs->sock.vt = &HandleSocket_sockvt;
+    hs->plug = plug;
+    hs->error = NULL;
+    hs->frozen = UNFROZEN;
+    bufchain_init(&hs->inputdata);
+    psb_init(&hs->psb);
 
-    ret->recv_H = recv_H;
-    ret->recv_h = handle_input_new(ret->recv_H, handle_gotdata, ret, flags);
-    ret->send_H = send_H;
-    ret->send_h = handle_output_new(ret->send_H, handle_sentdata, ret, flags);
+    hs->recv_H = recv_H;
+    hs->recv_h = handle_input_new(hs->recv_H, handle_gotdata, hs, flags);
+    hs->send_H = send_H;
+    hs->send_h = handle_output_new(hs->send_H, handle_sentdata, hs, flags);
+    hs->stderr_H = stderr_H;
+    if (hs->stderr_H)
+        hs->stderr_h = handle_input_new(hs->stderr_H, handle_stderr,
+                                        hs, flags);
 
-    return (Socket) ret;
+    hs->defer_close = hs->deferred_close = false;
+
+    return &hs->sock;
 }

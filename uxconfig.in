@@ -1,5 +1,8 @@
 /* uxconfig.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to 1 if you have the <asm/hwcap.h> header file. */
+#undef HAVE_ASM_HWCAP_H
+
 /* Define if clock_gettime() is available */
 #undef HAVE_CLOCK_GETTIME
 
@@ -7,8 +10,23 @@
    you don't. */
 #undef HAVE_DECL_CLOCK_MONOTONIC
 
+/* Define to 1 if you have the `dirfd' function. */
+#undef HAVE_DIRFD
+
+/* Define to 1 if you have the `endpwent' function. */
+#undef HAVE_ENDPWENT
+
+/* Define to 1 if you have the `fstatat' function. */
+#undef HAVE_FSTATAT
+
+/* Define to 1 if you have the `futimes' function. */
+#undef HAVE_FUTIMES
+
 /* Define to 1 if you have the `getaddrinfo' function. */
 #undef HAVE_GETADDRINFO
+
+/* Define to 1 if you have the <glob.h> header file. */
+#undef HAVE_GLOB_H
 
 /* Define to 1 if you have the <gssapi/gssapi.h> header file. */
 #undef HAVE_GSSAPI_GSSAPI_H
@@ -34,8 +52,14 @@
 /* Define to 1 if you have the `ptsname' function. */
 #undef HAVE_PTSNAME
 
+/* Define to 1 if you have the `setpwent' function. */
+#undef HAVE_SETPWENT
+
 /* Define to 1 if you have the `setresuid' function. */
 #undef HAVE_SETRESUID
+
+/* Define if SO_PEERCRED works in the Linux fashion. */
+#undef HAVE_SO_PEERCRED
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -52,8 +76,8 @@
 /* Define to 1 if you have the `strsignal' function. */
 #undef HAVE_STRSIGNAL
 
-/* Define to 1 if you have the <sys/select.h> header file. */
-#undef HAVE_SYS_SELECT_H
+/* Define to 1 if you have the <sys/auxv.h> header file. */
+#undef HAVE_SYS_AUXV_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -75,6 +99,9 @@
 
 /* Define if we could not find libdl. */
 #undef NO_LIBDL
+
+/* Define if building with GTK for MacOS. */
+#undef OSX_GTK
 
 /* Name of package */
 #undef PACKAGE

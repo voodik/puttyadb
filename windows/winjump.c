@@ -383,7 +383,6 @@ static IShellLink *make_shell_link(const char *appname,
 {
     IShellLink *ret;
     char *app_path, *param_string, *desc_string;
-    void *psettings_tmp;
     IPropertyStore *pPS;
     PROPVARIANT pv;
 
@@ -409,7 +408,7 @@ static IShellLink *make_shell_link(const char *appname,
 
     /* Check if this is a valid session, otherwise don't add. */
     if (sessionname) {
-        psettings_tmp = open_settings_r(sessionname);
+        settings_r *psettings_tmp = open_settings_r(sessionname);
         if (!psettings_tmp) {
             sfree(app_path);
             return NULL;
@@ -429,7 +428,11 @@ static IShellLink *make_shell_link(const char *appname,
     ret->lpVtbl->SetPath(ret, app_path);
 
     if (sessionname) {
-        param_string = dupcat("@", sessionname, NULL);
+        /* The leading space is reported to work around a Windows 10
+         * behaviour change in which an argument string starting with
+         * '@' causes the SetArguments method to silently do the wrong
+         * thing. */
+        param_string = dupcat(" @", sessionname, NULL);
     } else {
         param_string = dupstr("");
     }
@@ -441,7 +444,8 @@ static IShellLink *make_shell_link(const char *appname,
                              sessionname, "'", NULL);
     } else {
         assert(appname);
-        desc_string = dupprintf("Run %.*s", strcspn(appname, "."), appname);
+        desc_string = dupprintf("Run %.*s",
+                                (int)strcspn(appname, "."), appname);
     }
     ret->lpVtbl->SetDescription(ret, desc_string);
     sfree(desc_string);
@@ -457,7 +461,8 @@ static IShellLink *make_shell_link(const char *appname,
             pv.pszVal = dupstr(sessionname);
         } else {
             assert(appname);
-            pv.pszVal = dupprintf("Run %.*s", strcspn(appname, "."), appname);
+            pv.pszVal = dupprintf("Run %.*s",
+                                  (int)strcspn(appname, "."), appname);
         }
         pPS->lpVtbl->SetValue(pPS, &PKEY_Title, &pv);
         sfree(pv.pszVal);
@@ -487,7 +492,7 @@ static void update_jumplist_from_registry(void)
     IObjectArray *array = NULL;
     IShellLink *link = NULL;
     IObjectArray *pRemoved = NULL;
-    int need_abort = FALSE;
+    bool need_abort = false;
 
     /*
      * Create an ICustomDestinationList: the top-level object which
@@ -508,7 +513,7 @@ static void update_jumplist_from_registry(void)
     if (!SUCCEEDED(pCDL->lpVtbl->BeginList(pCDL, &num_items,
                                            COMPTR(IObjectArray, &pRemoved))))
         goto cleanup;
-    need_abort = TRUE;
+    need_abort = true;
     if (!SUCCEEDED(pRemoved->lpVtbl->GetCount(pRemoved, &nremoved)))
         nremoved = 0;
 
@@ -533,12 +538,12 @@ static void update_jumplist_from_registry(void)
         link = make_shell_link(NULL, piterator);
         if (link) {
             UINT i;
-            int found;
+            bool found;
 
             /*
              * Check that the link isn't in the user-removed list.
              */
-            for (i = 0, found = FALSE; i < nremoved && !found; i++) {
+            for (i = 0, found = false; i < nremoved && !found; i++) {
                 IShellLink *rlink;
                 if (SUCCEEDED(pRemoved->lpVtbl->GetAt
                               (pRemoved, i, COMPTR(IShellLink, &rlink)))) {
@@ -548,7 +553,7 @@ static void update_jumplist_from_registry(void)
                         SUCCEEDED(rlink->lpVtbl->GetDescription
                                   (rlink, desc2, sizeof(desc2)-1)) &&
                         !strcmp(desc1, desc2)) {
-                        found = TRUE;
+                        found = true;
                     }
                     rlink->lpVtbl->Release(rlink);
                 }
@@ -651,7 +656,7 @@ static void update_jumplist_from_registry(void)
      * Commit the jump list.
      */
     pCDL->lpVtbl->CommitList(pCDL);
-    need_abort = FALSE;
+    need_abort = false;
 
     /*
      * Clean up.
@@ -682,8 +687,7 @@ void clear_jumplist(void)
 /* Adds a saved session to the Windows 7 jumplist. */
 void add_session_to_jumplist(const char * const sessionname)
 {
-    if ((osVersion.dwMajorVersion < 6) ||
-        (osVersion.dwMajorVersion == 6 && osVersion.dwMinorVersion < 1))
+    if ((osMajorVersion < 6) || (osMajorVersion == 6 && osMinorVersion < 1))
         return;                        /* do nothing on pre-Win7 systems */
 
     if (add_to_jumplist_registry(sessionname) == JUMPLISTREG_OK) {
@@ -697,8 +701,7 @@ void add_session_to_jumplist(const char * const sessionname)
 /* Removes a saved session from the Windows jumplist. */
 void remove_session_from_jumplist(const char * const sessionname)
 {
-    if ((osVersion.dwMajorVersion < 6) ||
-        (osVersion.dwMajorVersion == 6 && osVersion.dwMinorVersion < 1))
+    if ((osMajorVersion < 6) || (osMajorVersion == 6 && osMinorVersion < 1))
         return;                        /* do nothing on pre-Win7 systems */
 
     if (remove_from_jumplist_registry(sessionname) == JUMPLISTREG_OK) {
@@ -707,4 +710,40 @@ void remove_session_from_jumplist(const char * const sessionname)
         /* Make sure we don't leave the jumplist dangling. */
         clear_jumplist();
     }
+}
+
+/* Set Explicit App User Model Id to fix removable media error with
+   jump lists */
+
+bool set_explicit_app_user_model_id(void)
+{
+  DECL_WINDOWS_FUNCTION(static, HRESULT, SetCurrentProcessExplicitAppUserModelID,
+                        (PCWSTR));
+
+  static HMODULE shell32_module = 0;
+
+    if (!shell32_module)
+    {
+        shell32_module = load_system32_dll("Shell32.dll");
+        /*
+         * We can't typecheck this function here, because it's defined
+         * in <shobjidl.h>, which we're not including due to clashes
+         * with all the manual-COM machinery above.
+         */
+        GET_WINDOWS_FUNCTION_NO_TYPECHECK(
+            shell32_module, SetCurrentProcessExplicitAppUserModelID);
+    }
+
+    if (p_SetCurrentProcessExplicitAppUserModelID)
+    {
+        if (p_SetCurrentProcessExplicitAppUserModelID(L"SimonTatham.PuTTY") == S_OK)
+        {
+          return true;
+        }
+        return false;
+    }
+    /* Function doesn't exist, which is ok for Pre-7 systems */
+
+    return true;
+
 }

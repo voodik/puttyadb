@@ -18,11 +18,9 @@
 #define IDN_COPY        1002
 
 #define IDA_ICON        1001
-#define IDA_TEXT1       1002
-#define IDA_VERSION     1003
-#define IDA_TEXT2       1004
-#define IDA_LICENCE     1005
-#define IDA_WEB         1006
+#define IDA_TEXT        1002
+#define IDA_LICENCE     1003
+#define IDA_WEB         1004
 
 #define IDC_TAB         1001
 #define IDC_TABSTATIC1  1002
@@ -30,5 +28,8 @@
 #define IDC_TABLIST     1004
 #define IDC_HELPBTN     1005
 #define IDC_ABOUT       1006
+
+#define ID_CUSTOM_CHMFILE 2000
+#define TYPE_CUSTOM_CHMFILE 2000
 
 #endif

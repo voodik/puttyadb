@@ -5,14 +5,16 @@
 #include <assert.h>
 
 #include "ssh.h"
+#include "mpint.h"
 
-#define RSA_EXPONENT 37		       /* we like this prime */
+#define RSA_EXPONENT 37                /* we like this prime */
 
-int rsa_generate(struct RSAKey *key, int bits, progfn_t pfn,
-		 void *pfnparam)
+int rsa_generate(RSAKey *key, int bits, progfn_t pfn,
+                 void *pfnparam)
 {
-    Bignum pm1, qm1, phi_n;
     unsigned pfirst, qfirst;
+
+    key->sshk.vt = &ssh_rsa;
 
     /*
      * Set up the phase limits for the progress report. We do this
@@ -36,7 +38,7 @@ int rsa_generate(struct RSAKey *key, int bits, progfn_t pfn,
      * P(1-P), in three with probability P(1-P)^2, etc. The
      * probability that we have still not managed to find a prime
      * after N attempts is (1-P)^N.
-     * 
+     *
      * We therefore inform the progress indicator of the number B
      * (29.34/B), so that it knows how much to increment by each
      * time. We do this in 16-bit fixed point, so 29.34 becomes
@@ -53,7 +55,7 @@ int rsa_generate(struct RSAKey *key, int bits, progfn_t pfn,
     /*
      * We don't generate e; we just use a standard one always.
      */
-    key->exponent = bignum_from_long(RSA_EXPONENT);
+    mp_int *exponent = mp_from_integer(RSA_EXPONENT);
 
     /*
      * Generate p and q: primes with combined length `bits', not
@@ -61,20 +63,33 @@ int rsa_generate(struct RSAKey *key, int bits, progfn_t pfn,
      * and e to be coprime, and (q-1) and e to be coprime, but in
      * general that's slightly more fiddly to arrange. By choosing
      * a prime e, we can simplify the criterion.)
+     *
+     * We give a min_separation of 2 to invent_firstbits(), ensuring
+     * that the two primes won't be very close to each other. (The
+     * chance of them being _dangerously_ close is negligible - even
+     * more so than an attacker guessing a whole 256-bit session key -
+     * but it doesn't cost much to make sure.)
      */
-    invent_firstbits(&pfirst, &qfirst);
-    key->p = primegen(bits / 2, RSA_EXPONENT, 1, NULL,
-		      1, pfn, pfnparam, pfirst);
-    key->q = primegen(bits - bits / 2, RSA_EXPONENT, 1, NULL,
-		      2, pfn, pfnparam, qfirst);
+    invent_firstbits(&pfirst, &qfirst, 2);
+    int qbits = bits / 2;
+    int pbits = bits - qbits;
+    assert(pbits >= qbits);
+    mp_int *p = primegen(pbits, RSA_EXPONENT, 1, NULL,
+                         1, pfn, pfnparam, pfirst);
+    mp_int *q = primegen(qbits, RSA_EXPONENT, 1, NULL,
+                         2, pfn, pfnparam, qfirst);
 
     /*
      * Ensure p > q, by swapping them if not.
+     *
+     * We only need to do this if the two primes were generated with
+     * the same number of bits (i.e. if the requested key size is
+     * even) - otherwise it's already guaranteed!
      */
-    if (bignum_cmp(key->p, key->q) < 0) {
-	Bignum t = key->p;
-	key->p = key->q;
-	key->q = t;
+    if (pbits == qbits) {
+        mp_cond_swap(p, q, mp_cmp_hs(q, p));
+    } else {
+        assert(mp_cmp_hs(p, q));
     }
 
     /*
@@ -83,27 +98,31 @@ int rsa_generate(struct RSAKey *key, int bits, progfn_t pfn,
      * and (q^-1 mod p).
      */
     pfn(pfnparam, PROGFN_PROGRESS, 3, 1);
-    key->modulus = bigmul(key->p, key->q);
+    mp_int *modulus = mp_mul(p, q);
     pfn(pfnparam, PROGFN_PROGRESS, 3, 2);
-    pm1 = copybn(key->p);
-    decbn(pm1);
-    qm1 = copybn(key->q);
-    decbn(qm1);
-    phi_n = bigmul(pm1, qm1);
+    mp_int *pm1 = mp_copy(p);
+    mp_sub_integer_into(pm1, pm1, 1);
+    mp_int *qm1 = mp_copy(q);
+    mp_sub_integer_into(qm1, qm1, 1);
+    mp_int *phi_n = mp_mul(pm1, qm1);
     pfn(pfnparam, PROGFN_PROGRESS, 3, 3);
-    freebn(pm1);
-    freebn(qm1);
-    key->private_exponent = modinv(key->exponent, phi_n);
-    assert(key->private_exponent);
+    mp_free(pm1);
+    mp_free(qm1);
+    mp_int *private_exponent = mp_invert(exponent, phi_n);
     pfn(pfnparam, PROGFN_PROGRESS, 3, 4);
-    key->iqmp = modinv(key->q, key->p);
-    assert(key->iqmp);
+    mp_free(phi_n);
+    mp_int *iqmp = mp_invert(q, p);
     pfn(pfnparam, PROGFN_PROGRESS, 3, 5);
 
     /*
-     * Clean up temporary numbers.
+     * Populate the returned structure.
      */
-    freebn(phi_n);
+    key->modulus = modulus;
+    key->exponent = exponent;
+    key->private_exponent = private_exponent;
+    key->p = p;
+    key->q = q;
+    key->iqmp = iqmp;
 
     return 1;
 }

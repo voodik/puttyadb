@@ -51,7 +51,7 @@ Once you've got a console window to type into, you can just type <code>pscp</cod
 </p>
 <pre><code>Z:\owendadmin&gt;pscp
 PuTTY Secure Copy client
-Release 0.64
+Release 0.73
 Usage: pscp [options] [user@]host:source target
        pscp [options] source [source...] [user@]host:target
        pscp [options] -ls [user@]host:filespec
@@ -75,9 +75,15 @@ Options:
   -hostkey aa:bb:cc:...
             manually specify a host key (may be repeated)
   -batch    disable all interactive prompts
+  -no-sanitise-stderr  don't strip control chars from standard error
+  -proxycmd command
+            use 'command' as local proxy
   -unsafe   allow server-side wildcards (DANGEROUS)
   -sftp     force use of SFTP protocol
   -scp      force use of SCP protocol
+  -sshlog file
+  -sshrawlog file
+            log protocol details to a file
 </code></pre>
 <p>
 (PSCP's interface is much like the Unix <code>scp</code> command, if you're familiar with that.)
@@ -215,14 +221,18 @@ The <code>-scp</code> option forces PSCP to use the SCP protocol or quit.
 <p>
 The <code>-sftp</code> option forces PSCP to use the SFTP protocol or quit. When this option is specified, PSCP looks harder for an SFTP server, which may allow use of SFTP with SSH-1 depending on server setup.
 </p>
-<h3><a name="pscp-retval"></a><a name="S5.2.3"></a>5.2.3 <a name="i33"></a>Return value</h3>
+<h4><a name="pscp-option-sanitise"></a><a name="S5.2.2.7"></a>5.2.2.7 <a name="i33"></a><a name="i34"></a><code>-no-sanitise-stderr</code>: control error message sanitisation</h4>
 <p>
-PSCP returns an <a name="i34"></a><code>ERRORLEVEL</code> of zero (success) only if the files were correctly transferred. You can test for this in a <a name="i35"></a>batch file, using code such as this:
+The <code>-no-sanitise-stderr</code> option will cause PSCP to pass through the server's standard-error stream literally, without stripping control characters from it first. This might be useful if the server were sending coloured error messages, but it also gives the server the ability to have unexpected effects on your terminal display. For more discussion, see <a href="Chapter7.html#plink-option-sanitise">section 7.2.3.5</a>.
+</p>
+<h3><a name="pscp-retval"></a><a name="S5.2.3"></a>5.2.3 <a name="i35"></a>Return value</h3>
+<p>
+PSCP returns an <a name="i36"></a><code>ERRORLEVEL</code> of zero (success) only if the files were correctly transferred. You can test for this in a <a name="i37"></a>batch file, using code such as this:
 </p>
 <pre><code>pscp file*.* user@hostname:
 if errorlevel 1 echo There was an error
 </code></pre>
-<h3><a name="pscp-pubkey"></a><a name="S5.2.4"></a>5.2.4 Using <a name="i36"></a>public key authentication with PSCP</h3>
+<h3><a name="pscp-pubkey"></a><a name="S5.2.4"></a>5.2.4 Using <a name="i38"></a>public key authentication with PSCP</h3>
 <p>
 Like PuTTY, PSCP can authenticate using a public key instead of a password. There are three ways you can do this.
 </p>
@@ -230,7 +240,7 @@ Like PuTTY, PSCP can authenticate using a public key instead of a password. Ther
 Firstly, PSCP can use PuTTY saved sessions in place of hostnames (see <a href="#pscp-usage-basics-host">section 5.2.1.2</a>). So you would do this:
 </p>
 <ul><li>
-Run PuTTY, and create a PuTTY saved session (see <a href="Chapter4.html#config-saving">section 4.1.2</a>) which specifies your private key file (see <a href="Chapter4.html#config-ssh-privkey">section 4.21.8</a>). You will probably also want to specify a username to log in as (see <a href="Chapter4.html#config-username">section 4.14.1</a>).
+Run PuTTY, and create a PuTTY saved session (see <a href="Chapter4.html#config-saving">section 4.1.2</a>) which specifies your private key file (see <a href="Chapter4.html#config-ssh-privkey">section 4.23.8</a>). You will probably also want to specify a username to log in as (see <a href="Chapter4.html#config-username">section 4.15.1</a>).
 </li>
 <li>
 In PSCP, you can now use the name of the session instead of a hostname: type <code>pscp sessionname:file localfile</code>, where <code>sessionname</code> is replaced by the name of your saved session.
@@ -253,6 +263,6 @@ Specify a user and host name to PSCP as normal. PSCP will automatically detect P
 For more general information on public-key authentication, see <a href="Chapter8.html#pubkey">chapter 8</a>.
 </p>
 
-<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
-[PuTTY release 0.64]</address></body>
+<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
+[PuTTY release 0.73]</address></body>
 </html>

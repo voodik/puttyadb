@@ -27,7 +27,7 @@
 <li><a href="#udp-keystrokes">D.9 Keystrokes sent to the server wherever possible</a></li>
 <li><a href="#udp-640x480">D.10 640&#215;480 friendliness in configuration panels</a></li>
 <li><a href="#udp-makefiles-auto">D.11 Automatically generated <code>Makefile</code>s</a></li>
-<li><a href="#udp-ssh-coroutines">D.12 Coroutines in <code>ssh.c</code></a></li>
+<li><a href="#udp-ssh-coroutines">D.12 Coroutines in the SSH code</a></li>
 <li><a href="#udp-compile-once">D.13 Single compilation of each source file</a></li>
 <li><a href="#udp-perfection">D.14 Do as we say, not as we do</a></li>
 </ul></li>
@@ -44,17 +44,59 @@ Despite Windows being its main area of fame, PuTTY is no longer a Windows-only a
 Therefore, embedding Windows-specific code in core modules such as <code>ssh.c</code> is not acceptable. We went to great lengths to <em>remove</em> all the Windows-specific stuff from our core modules, and to shift it out into Windows-specific modules. Adding large amounts of Windows-specific stuff in parts of the code that should be portable is almost guaranteed to make us reject a contribution.
 </p>
 <p>
-The PuTTY source base is divided into platform-specific modules and platform-generic modules. The Unix-specific modules are all in the <code>unix</code> subdirectory; the Mac-specific modules are in the <code>mac</code> subdirectory; the Windows-specific modules are in the <code>windows</code> subdirectory.
+The PuTTY source base is divided into platform-specific modules and platform-generic modules. The Unix-specific modules are all in the <code>unix</code> subdirectory; the Windows-specific modules are in the <code>windows</code> subdirectory.
 </p>
 <p>
 All the modules in the main source directory - notably <em>all</em> of the code for the various back ends - are platform-generic. We want to keep them that way.
 </p>
 <p>
-This also means you should stick to what you are guaranteed by ANSI/ISO C (that is, the original C89/C90 standard, not C99). Try not to make assumptions about the precise size of basic types such as <code>int</code> and <code>long int</code>; don't use pointer casts to do endianness-dependent operations, and so on.
+This also means you should stick to the C semantics guaranteed by the C standard: try not to make assumptions about the precise size of basic types such as <code>int</code> and <code>long int</code>; don't use pointer casts to do endianness-dependent operations, and so on.
 </p>
 <p>
-(There are one or two aspects of ANSI C portability which we <em>don't</em> care about. In particular, we expect PuTTY to be compiled on 32-bit architectures <em>or bigger</em>; so it's safe to assume that <code>int</code> is at least 32 bits wide, not just the 16 you are guaranteed by ANSI C. Similarly, we assume that the execution character encoding is a superset of the printable characters of ASCII, though we don't assume the numeric values of control characters, particularly <code>'\n'</code> and <code>'\r'</code>.)
+(Even <em>within</em> a platform front end you should still be careful of some of these portability issues. The Windows front end compiles on both 32- and 64-bit x86 and also Arm.)
 </p>
+<p>
+Our current choice of C standards version is <em>mostly</em> C99. With a couple of exceptions, you can assume that C99 features are available (in particular <code>&lt;stdint.h&gt;</code>, <code>&lt;stdbool.h&gt;</code> and <code>inline</code>), but you shouldn't use things that are new in C11 (such as <code>&lt;uchar.h&gt;</code> or <code>_Generic</code>).
+</p>
+<p>
+The exceptions to that rule are due to the need for Visual Studio compatibility:
+</p>
+<ul><li>
+Don't use variable-length arrays. Visual Studio doesn't support them even now that it's adopted the rest of C99. We use <code>-Wvla</code> when building with gcc and clang, to make it easier to avoid accidentally breaking that rule.
+</li>
+<li>
+For historical reasons, we still build with one older VS version which lacks <code>&lt;inttypes.h&gt;</code>. So that file is included centrally in <code>defs.h</code>, and has a set of workaround definitions for the <code>PRIx64</code>-type macros we use. If you need to use another one of those macros, you need to add a workaround definition in <code>defs.h</code>, and don't casually re-include <code>&lt;inttypes.h&gt;</code> anywhere else in the source file.
+</li>
+</ul>
+<p>
+Here are a few portability assumptions that we <em>do</em> currently allow (because we'd already have to thoroughly vet the existing code if they ever needed to change, and it doesn't seem worth doing that unless we really have to):
+</p>
+<ul><li>
+You can assume <code>int</code> is <em>at least</em> 32 bits wide. (We've never tried to port PuTTY to a platform with 16-bit <code>int</code>, and it doesn't look likely to be necessary in future.)
+</li>
+<li>
+Similarly, you can assume <code>char</code> is exactly 8 bits. (Exceptions to that are even less likely to be relevant to us than short <code>int</code>.)
+</li>
+<li>
+You can assume that using <code>memset</code> to write zero bytes over a whole structure will have the effect of setting all its pointer fields to <code>NULL</code>. (The standard itself guarantees this for <em>integer</em> fields, but not for pointers.)
+</li>
+<li>
+You can assume that <code>time_t</code> has POSIX semantics, i.e. that it represents an integer number of non-leap seconds since 1970-01-01 00:00:00 UTC. (Times in this format are used in X authorisation, but we could work around that by carefully distinguishing local <code>time_t</code> from time values used in the wire protocol; but these semantics of <code>time_t</code> are also baked into the shared library API used by the GSSAPI authentication code, which would be much harder to change.)
+</li>
+<li>
+You can assume that the execution character encoding is a superset of the printable characters of ASCII. (In particular, it's fine to do arithmetic on a <code>char</code> value representing a Latin alphabetic character, without bothering to allow for EBCDIC or other non-consecutive encodings of the alphabet.)
+</li>
+</ul>
+<p>
+On the other hand, here are some particular things <em>not</em> to assume:
+</p>
+<ul><li>
+Don't assume anything about the <em>signedness</em> of <code>char</code>. In particular, you <em>must</em> cast <code>char</code> values to <code>unsigned char</code> before passing them to any <code>&lt;ctype.h&gt;</code> function (because those expect a non-negative character value, or <code>EOF</code>). If you need a particular signedness, explicitly specify <code>signed char</code> or <code>unsigned char</code>, or use C99 <code>int8_t</code> or <code>uint8_t</code>.
+</li>
+<li>
+From past experience with MacOS, we're still a bit nervous about <code>'\n'</code> and <code>'\r'</code> potentially having unusual meanings on a given platform. So it's fine to say <code>\n</code> in a string you're passing to <code>printf</code>, but in any context where those characters appear in a standardised wire protocol or a binary file format, they should be spelled <code>'\012'</code> and <code>'\015'</code> respectively.
+</li>
+</ul>
 <h2><a name="udp-multi-backend"></a><a name="SD.2"></a>D.2 Multiple backends treated equally</h2>
 <p>
 PuTTY is not an SSH client with some other stuff tacked on the side. PuTTY is a generic, multiple-backend, remote VT-terminal client which happens to support one backend which is larger, more popular and more useful than the rest. Any extra feature which can possibly be general across all backends should be so: localising features unnecessarily into the SSH back end is a design error. (For example, we had several code submissions for proxy support which worked by hacking <code>ssh.c</code>. Clearly this is completely wrong: the <code>network.h</code> abstraction is the place to put it, so that it will apply to all back ends equally, and indeed we eventually put it there after another contributor sent a better patch.)
@@ -94,7 +136,7 @@ In particular, try not to use fixed-size buffers for variable-size data such as 
 </p>
 <h2><a name="udp-multi-compiler"></a><a name="SD.6"></a>D.6 Independence of specific compiler</h2>
 <p>
-Windows PuTTY can currently be compiled with any of four Windows compilers: MS Visual C, Borland's freely downloadable C compiler, the Cygwin / <code>mingw32</code> GNU tools, and <code>lcc-win32</code>.
+Windows PuTTY can currently be compiled with any of three Windows compilers: MS Visual C, the Cygwin / <code>mingw32</code> GNU tools, and <code>clang</code> (in MS compatibility mode).
 </p>
 <p>
 This is a really useful property of PuTTY, because it means people who want to contribute to the coding don't depend on having a specific compiler; so they don't have to fork out money for MSVC if they don't already have it, but on the other hand if they <em>do</em> have it they also don't have to spend effort installing <code>gcc</code> alongside it. They can use whichever compiler they happen to have available, or install whichever is cheapest and easiest if they don't have one.
@@ -170,18 +212,24 @@ If you send us a patch that modifies one of the <code>Makefile</code>s, you just
 <p>
 (There is a comment at the top of every <code>Makefile</code> in the PuTTY source archive saying this, but many people don't seem to read it, so it's worth repeating here.)
 </p>
-<h2><a name="udp-ssh-coroutines"></a><a name="SD.12"></a>D.12 Coroutines in <code>ssh.c</code></h2>
+<h2><a name="udp-ssh-coroutines"></a><a name="SD.12"></a>D.12 Coroutines in the SSH code</h2>
 <p>
-Large parts of the code in <code>ssh.c</code> are structured using a set of macros that implement (something close to) Donald Knuth's &#8216;coroutines&#8217; concept in C.
+Large parts of the code in the various SSH modules (in fact most of the protocol layers) are structured using a set of macros that implement (something close to) Donald Knuth's &#8216;coroutines&#8217; concept in C.
 </p>
 <p>
 Essentially, the purpose of these macros are to arrange that a function can call <code>crReturn()</code> to return to its caller, and the next time it is called control will resume from just after that <code>crReturn</code> statement.
 </p>
 <p>
-This means that any local (automatic) variables declared in such a function will be corrupted every time you call <code>crReturn</code>. If you need a variable to persist for longer than that, you <em>must</em> make it a field in one of the persistent state structures: either the local state structures <code>s</code> or <code>st</code> in each function, or the backend-wide structure <code>ssh</code>.
+This means that any local (automatic) variables declared in such a function will be corrupted every time you call <code>crReturn</code>. If you need a variable to persist for longer than that, you <em>must</em> make it a field in some appropriate structure containing the persistent state of the coroutine &#8211; typically the main state structure for an SSH protocol layer.
 </p>
 <p>
-See <a href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html"><code>http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html</code></a> for a more in-depth discussion of what these macros are for and how they work.
+See <a href="https://www.chiark.greenend.org.uk/~sgtatham/coroutines.html"><code>https://www.chiark.greenend.org.uk/~sgtatham/coroutines.html</code></a> for a more in-depth discussion of what these macros are for and how they work.
+</p>
+<p>
+Another caveat: most of these coroutines are not <em>guaranteed</em> to run to completion, because the SSH connection (or whatever) that they're part of might be interrupted at any time by an unexpected network event or user action. So whenever a coroutine-managed variable refers to a resource that needs releasing, you should also ensure that the cleanup function for its containing state structure can reliably release it even if the coroutine is aborted at an arbitrary point.
+</p>
+<p>
+For example, if an SSH packet protocol layer has to have a field that sometimes points to a piece of allocated memory, then you should ensure that when you free that memory you reset the pointer field to <code>NULL</code>. Then, no matter when the protocol layer's cleanup function is called, it can reliably free the memory if there is any, and not crash if there isn't.
 </p>
 <h2><a name="udp-compile-once"></a><a name="SD.13"></a>D.13 Single compilation of each source file</h2>
 <p>
@@ -211,6 +259,6 @@ The current PuTTY code probably does not conform strictly to <em>all</em> of the
 This should not be taken as a licence to go ahead and violate the rules. Where we violate them ourselves, we're not happy about it, and we would welcome patches that fix any existing problems. Please try to help us make our code better, not worse!
 </p>
 
-<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
-[PuTTY release 0.64]</address></body>
+<hr><p>If you want to provide feedback on this manual or on the PuTTY tools themselves, see the <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/feedback.html">Feedback page</a>.</p><address>
+[PuTTY release 0.73]</address></body>
 </html>
