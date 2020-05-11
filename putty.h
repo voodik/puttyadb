@@ -1749,6 +1749,12 @@ extern const struct BackendVtable null_backend;
 extern const struct BackendVtable loop_backend;
 
 /*
+ * Exports from adb.c.
+ */
+
+extern const struct BackendVtable adb_backend;
+
+/*
  * Exports from raw.c.
  */
 

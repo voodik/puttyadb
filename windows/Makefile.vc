@@ -198,7 +198,7 @@ $(BUILDDIR)plink.exe: $(BUILDDIR)adb.obj $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync
 		$(BUILDDIR)winucs.obj $(BUILDDIR)winx11.obj \
 		$(BUILDDIR)x11fwd.obj
 	type <<link_plink
- advapi32.lib $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync.obj
+ advapi32.lib $(BUILDDIR)adb.obj $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync.obj
  $(BUILDDIR)be_all_s.obj $(BUILDDIR)be_misc.obj $(BUILDDIR)callback.obj
  $(BUILDDIR)cmdline.obj comdlg32.lib $(BUILDDIR)conf.obj
  $(BUILDDIR)cproxy.obj $(BUILDDIR)ecc.obj $(BUILDDIR)errsock.obj
@@ -485,7 +485,7 @@ $(BUILDDIR)putty.exe: $(BUILDDIR)adb.obj $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync
 		$(BUILDDIR)winucs.obj $(BUILDDIR)winutils.obj \
 		$(BUILDDIR)winx11.obj $(BUILDDIR)x11fwd.obj
 	type <<link_putty
- advapi32.lib $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync.obj
+ advapi32.lib $(BUILDDIR)adb.obj $(BUILDDIR)agentf.obj $(BUILDDIR)aqsync.obj
  $(BUILDDIR)be_all_s.obj $(BUILDDIR)be_misc.obj $(BUILDDIR)callback.obj
  $(BUILDDIR)cmdline.obj comdlg32.lib $(BUILDDIR)conf.obj
  $(BUILDDIR)config.obj $(BUILDDIR)cproxy.obj $(BUILDDIR)dialog.obj
@@ -602,7 +602,7 @@ $(BUILDDIR)puttytel.exe: $(BUILDDIR)adb.obj $(BUILDDIR)be_misc.obj $(BUILDDIR)be
 		$(BUILDDIR)winstore.obj $(BUILDDIR)wintime.obj \
 		$(BUILDDIR)winucs.obj $(BUILDDIR)winutils.obj
 	type <<link_puttytel
- advapi32.lib $(BUILDDIR)be_misc.obj $(BUILDDIR)be_nos_s.obj
+ advapi32.lib $(BUILDDIR)adb.obj $(BUILDDIR)be_misc.obj $(BUILDDIR)be_nos_s.obj
  $(BUILDDIR)callback.obj $(BUILDDIR)cmdline.obj comdlg32.lib
  $(BUILDDIR)conf.obj $(BUILDDIR)config.obj $(BUILDDIR)dialog.obj
  $(BUILDDIR)errsock.obj gdi32.lib imm32.lib $(BUILDDIR)ldisc.obj
@@ -654,7 +654,7 @@ $(BUILDDIR)testcrypt.exe: $(BUILDDIR)ecc.obj $(BUILDDIR)marshal.obj \
 	link $(LFLAGS) $(XLFLAGS) -out:$(BUILDDIR)testcrypt.exe -map:$(BUILDDIR)testcrypt.map -nologo -subsystem:console$(SUBSYSVER) @link_testcrypt
 
 $(BUILDDIR)adb.obj: ..\adb.c ..\putty.h ..\puttyps.h ..\network.h ..\misc.h \
-		..\windows\winstuff.h ..\macosx\osx.h ..\unix\unix.h \
+		..\windows\winstuff.h ..\unix\unix.h \
 		..\puttymem.h ..\tree234.h ..\windows\winhelp.h \
 		..\charset\charset.h
 $(BUILDDIR)agentf.obj: ..\agentf.c ..\putty.h ..\ssh.h ..\pageant.h \
