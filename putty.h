@@ -510,7 +510,7 @@ enum {
      * hurt to define it globally. */
     PROT_SERIAL,
     /* PROT_SUPDUP is the historical RFC 734 protocol. */
-    PROT_SUPDUP,
+    PROT_SUPDUP, PROT_ADB,
     PROTOCOL_LIMIT, /* upper bound on number of protocols */
 };
 
@@ -2351,6 +2351,12 @@ extern const struct BackendVtable loop_backend;
  */
 
 extern const struct BackendVtable raw_backend;
+
+/*
+ * Exports from adb.c.
+ */
+
+extern const struct BackendVtable adb_backend;
 
 /*
  * Exports from rlogin.c.

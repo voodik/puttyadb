@@ -82,6 +82,7 @@ const struct BackendVtable *const backends[] = {
     &rlogin_backend,
     &supdup_backend,
     &raw_backend,
+    &adb_backend,
 #endif
 
     /*

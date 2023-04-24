@@ -1842,7 +1842,7 @@ void setup_config_box(struct controlbox *b, bool midsession,
         ctrl_columns(s, 1, 100);
         c = ctrl_text(s, "Connection type:", HELPCTX(session_hostname));
         ctrl_columns(s, 2, 62, 38);
-        c = ctrl_radiobuttons(s, NULL, NO_SHORTCUT, 3,
+        c = ctrl_radiobuttons(s, NULL, NO_SHORTCUT, 4,
                               HELPCTX(session_hostname),
                               config_protocols_handler, P(hp));
         c->column = 0;
@@ -1862,6 +1862,7 @@ void setup_config_box(struct controlbox *b, bool midsession,
                 (backends[i]->protocol == PROT_SSH ? 's' :
                  backends[i]->protocol == PROT_SERIAL ? 'r' :
                  backends[i]->protocol == PROT_RAW ? 'w' :  /* FIXME unused */
+                 backends[i]->protocol == PROT_ADB ? 'a' :  /* ADB */
                  NO_SHORTCUT);
             c->radio.buttondata[c->radio.nbuttons] =
                 I(backends[i]->protocol);
