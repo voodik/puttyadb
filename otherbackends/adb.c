@@ -261,8 +261,8 @@ static char *adb_init(const BackendVtable *vt, Seat *seat,
     }
 
 	/* send initial data to adb server */
-	
-	sprintf_s(sendhost,512,"%04xhost:%s",strlen(host)+5,host);
+
+	snprintf(sendhost,512,"%04xhost:%s",strlen(host)+5,host);
 
 	sk_write(adb->s,sendhost,strlen(host)+9);
 
